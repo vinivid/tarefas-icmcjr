@@ -7,4 +7,10 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+  rules, {
+    'no-console': 'warn',                
+    '@typescript-eslint/no-unused-vars': 'error',
+    "indent": ["error", 2],
+    "react/jsx-indent": ["error", 2],
+  },
 ]);

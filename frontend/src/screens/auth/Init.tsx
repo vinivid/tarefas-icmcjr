@@ -1,10 +1,12 @@
-import { useRouter } from "expo-router";
 import { Image, StyleSheet, View } from "react-native";
+
+import { useNavigation } from "@react-navigation/native";
+import { type AuthScreenNavigationProp } from "@/src/navigation/AuthNavigator";
 
 import Botao from "@/src/components/Botao";
 
-export default function Index() {
-  const router = useRouter();
+export default function Init() {
+  const navigation = useNavigation<AuthScreenNavigationProp>();
 
   return (
     <View>
@@ -15,11 +17,11 @@ export default function Index() {
         <View>
           <Botao 
             conteudo="Login"
-            onPress={ () => router.push('/login') } 
+            onPress={ () => navigation.push('Login') }
           />
           <Botao 
             conteudo="Registrar"
-            onPress={ () => router.push('/registrar') } 
+            onPress={ () => navigation.push('Registrar') } 
           />
         </View>
     </View>

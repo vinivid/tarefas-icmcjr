@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 
-import { Colors } from "../constants/theme";
+import { Colors } from "@/src//constants/theme";
 
 type ButtonProps = {
   conteudo : string,
@@ -39,6 +39,6 @@ const styles = StyleSheet.create({
   },
   btnText : {
     color: Colors.light.background,
-    fontWeight: 800
+    fontFamily: "RobotoMono_700Bold"
   }
 })

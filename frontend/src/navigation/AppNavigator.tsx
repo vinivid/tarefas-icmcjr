@@ -7,7 +7,6 @@ import { AuthNavigator } from './AuthNavigator';
 import { HomeNavigator } from './HomeNavigator';
 
 function userIsSignedIn() {
-  // Depois substituir com um authContext 
   const { auth } = useAuth();
   return auth;
 }

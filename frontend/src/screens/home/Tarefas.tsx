@@ -1,7 +1,11 @@
-import { Text } from "react-native"
+import { Text, View } from "react-native"
+import TarefaCard from "../../components/TarefaCard"
 
 export default function Tarefas() {
   return (
-    <Text style={{color: 'red'}}>Tela de tarefas</Text>
+    <View>
+      <Text style={{color: 'red'}}>Tela de tarefas</Text>
+      <TarefaCard titulo="teste" desc="testando" prazo="data" finished={false}></TarefaCard>
+    </View>
   )
 }

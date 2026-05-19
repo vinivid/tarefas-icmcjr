@@ -9,17 +9,19 @@ import { Colors } from "@/src/constants/theme"
 
 import { MaterialCommunityIcons } from "@expo/vector-icons"; 
 
-interface LineInputProps {
+export interface LineInputProps {
   value: string;
   label: string;
   error?: boolean;
   errorValue?: string;
   onClosePress: () => void;
   onChangeText: (text: string) => void;
+  placeholder?: string;
   keyboardType?: KeyboardType;
   multiline?: boolean;
   numberOfLines?: number;
   maxLenght?: number;
+  secureTextEntry?: boolean;
 };
 
 /** 
@@ -49,6 +51,8 @@ interface LineInputProps {
  * @param onChangeText função que é executada toda vez que o texto
  * do input é alterado.
  * 
+ * @param placeholder texto de placeholder
+ * 
  * @param keyboardType definie o tipo de teclado que irá aparecer.
  * Ex: Numéric faz com que o teclado numérico apareça. O valor
  * indefinido é o teclado normal.
@@ -61,6 +65,9 @@ interface LineInputProps {
  * 
  * @param maxLenght Número máximo de carecters que o input pode 
  * receber.
+ * 
+ * @param secureTextEntry flag que indica se é um input que deve
+ * ser escondido
 */ 
 export default function LineInput({
   value,
@@ -69,10 +76,12 @@ export default function LineInput({
   errorValue,
   onClosePress,
   onChangeText,
+  placeholder,
   keyboardType,
   multiline,
   numberOfLines,
-  maxLenght
+  maxLenght,
+  secureTextEntry
 } : LineInputProps){
   const [focus, setFocus] = useState(false);
 
@@ -123,6 +132,8 @@ export default function LineInput({
         keyboardType={keyboardType}
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
+        placeholder={placeholder}
+        secureTextEntry={secureTextEntry}
       >
       </TextInput>
       {error && (

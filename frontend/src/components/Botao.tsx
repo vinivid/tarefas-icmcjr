@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 
-import { Colors } from "@/src//constants/theme";
+import { Colors } from "@/src/constants/theme";
 
-type ButtonProps = {
+export type ButtonProps = {
   conteudo : string,
   onPress : () => void
 }

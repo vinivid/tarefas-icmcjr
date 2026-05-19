@@ -6,7 +6,7 @@ import { useState } from "react";
 type TarefaProps = {
     titulo: string,
     desc: string,
-    prazo: string, // mudar o tipo do prazo
+    prazo: Date,
     finished: boolean
 }
 
@@ -18,6 +18,7 @@ export default function TarefaCard({
 } : TarefaProps) {
 
     const [terminada, setTerminada] = useState(finished);
+    const [expandida, setExpandida] = useState(false);
 
     return (
         <View
@@ -30,7 +31,9 @@ export default function TarefaCard({
             </Text>
 
             <View style={styles.flex}>
-                <Text>DATA A SER IMPLEMENTADA</Text>
+                <Text style={styles.data}>
+                    {prazo.toLocaleDateString("pt-br")}
+                </Text>
 
                 <Pressable onPress={() => setTerminada(prev => !prev)}>
                     <Text style={ terminada ? styles.finalizado : styles.andamento }>
@@ -38,6 +41,12 @@ export default function TarefaCard({
                     </Text>
                 </Pressable>
             </View>
+
+            <Pressable onPress={() => setExpandida(prev => !prev)}>
+                <Text style={ expandida ? styles.desc : styles.mais }>
+                    { expandida ? desc : 'v' }
+                </Text>
+            </Pressable>
         </View>
     )
 }
@@ -56,12 +65,18 @@ const styles = StyleSheet.create({
 
     titulo : {
         color: Colors.light.primary,
-        fontWeight: 800
+        fontWeight: 800,
+        fontSize: 20
     },
 
     flex : {
         flexDirection: 'row',
         justifyContent: 'space-between' 
+    },
+
+    data : {
+        color: Colors.light.primary,
+        fontWeight: 800
     },
 
     finalizado : {
@@ -73,10 +88,19 @@ const styles = StyleSheet.create({
     },
 
     andamento : {
-        color : 'gold',
-        borderColor : 'gold',
+        color: 'gold',
+        borderColor: 'gold',
         borderWidth: 1,
         borderRadius: 20,
         paddingHorizontal: 5
+    },
+
+    mais : {
+        color: Colors.light.primary,
+        alignSelf: 'center'
+    },
+
+    desc : {
+        color: 'grey'
     }
 })

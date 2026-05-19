@@ -22,6 +22,7 @@ export interface LineInputProps {
   numberOfLines?: number;
   maxLenght?: number;
   secureTextEntry?: boolean;
+  editable?: boolean;
 };
 
 /** 
@@ -68,6 +69,8 @@ export interface LineInputProps {
  * 
  * @param secureTextEntry flag que indica se é um input que deve
  * ser escondido
+ * 
+ * @param editable flag que coloca o input como editavel ou não.
 */ 
 export default function LineInput({
   value,
@@ -81,7 +84,8 @@ export default function LineInput({
   multiline,
   numberOfLines,
   maxLenght,
-  secureTextEntry
+  secureTextEntry,
+  editable
 } : LineInputProps){
   const [focus, setFocus] = useState(false);
 
@@ -134,6 +138,7 @@ export default function LineInput({
         onBlur={() => setFocus(false)}
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
+        editable={editable}
       >
       </TextInput>
       {error && (

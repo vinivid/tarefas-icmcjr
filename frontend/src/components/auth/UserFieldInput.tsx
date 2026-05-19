@@ -74,7 +74,12 @@ export default function UserFieldInput<T>({
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         placeholder={placeholder}
-        error={!(fieldRes.error === UserInputError.Empty)}
+        error={
+          !( 
+          (fieldRes.error === UserInputError.Empty)
+          || ((fieldRes.error === UserInputError.Minlen) && fieldStr === '')
+          )
+        }
         errorValue={errorMsg(fieldRes.error)}
         onClosePress={() => setFieldStr('')}
       />

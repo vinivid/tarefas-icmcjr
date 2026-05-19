@@ -37,7 +37,7 @@ export type Username = string;
  */
 export function createUsername(name : string) : Result<Username, UserInputError> {
   // Nome vazio ou somente espaços
-  if (/^\s*$/.test(name)) 
+  if (/\s*/.test(name)) 
     return { ok: false, error : UserInputError.Empty };
 
   // Este regex satânico verifica se o nome do usuário contem caracteres de URL,
@@ -74,21 +74,22 @@ export type Password = string;
  * as invariantes necessárias. 
  */
 export function createPassword(pass : string) : Result<Password, UserInputError> {
-  if (pass.length < 8)
+    if (pass.length < 8)
     return { ok: false, error : UserInputError.Minlen };
 
   // Senha vazia ou somente espaços
-  if (/^\s*$/.test(pass))
+  if (/\s*/.test(pass))
     return { ok: false, error : UserInputError.Empty };
 
   // Caracteres de controle
-  if (!(/[\x00-\x1F\x7F]/.test(pass)))
+  if (/[\x00-\x1F\x7F]/.test(pass))
     return { ok: false, error : UserInputError.InvalidChars };
 
   if (pass.length > 64)
     return { ok: false, error : UserInputError.Maxlen };
 
   // Espaços no final
+  // No android ele costuma ja remover os espaços
   if (/\s+$/.test(pass))
     return { ok: false, error : UserInputError.TrailingSpace };
 
@@ -127,7 +128,7 @@ export function createEmail(email : string) : Result<Email, UserInputError> {
  * Um CPF é uma string que cumpre as 
  * invariantes de um CPF.
  */
-export type CPF = string;
+export type Cpf = string;
 
 /**
  * Cria um cpf garantido as invariantes do CPF.
@@ -139,7 +140,7 @@ export type CPF = string;
  * @return um CPF válido caso a string seja um CPF
  * válido.
  */
-export function createCPF(cpf : string) : Result<CPF, UserInputError> {
+export function createCpf(cpf : string) : Result<Cpf, UserInputError> {
   if (cpf.length > 11) 
     return { ok: false, error: UserInputError.Maxlen };
 

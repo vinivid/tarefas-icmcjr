@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "../constants/theme";
+import { useState } from "react";
 
 type TarefaProps = {
     titulo: string,
@@ -15,6 +16,9 @@ export default function TarefaCard({
     prazo,
     finished
 } : TarefaProps) {
+
+    const [terminada, setTerminada] = useState(finished);
+
     return (
         <View
             style={styles.card}
@@ -22,8 +26,18 @@ export default function TarefaCard({
             <Text
                 style={styles.titulo}
             >
-                Teste do Card de Tarefa
+                {titulo}
             </Text>
+
+            <View style={styles.flex}>
+                <Text>DATA A SER IMPLEMENTADA</Text>
+
+                <Pressable onPress={() => setTerminada(prev => !prev)}>
+                    <Text style={ terminada ? styles.finalizado : styles.andamento }>
+                        { terminada ? "Finalizado" : "Em andamento" }
+                    </Text>
+                </Pressable>
+            </View>
         </View>
     )
 }
@@ -31,18 +45,38 @@ export default function TarefaCard({
 const styles = StyleSheet.create({
     card : {
         backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
         alignSelf: 'center',
         borderWidth: 1,
         borderColor: Colors.light.primary,
         borderRadius: 20,
         width: '90%',
-        paddingVertical: 50
+        paddingVertical: 50,
+        paddingHorizontal: 20
     },
 
     titulo : {
         color: Colors.light.primary,
         fontWeight: 800
+    },
+
+    flex : {
+        flexDirection: 'row',
+        justifyContent: 'space-between' 
+    },
+
+    finalizado : {
+        color : 'green',
+        borderColor : 'green',
+        borderWidth: 1,
+        borderRadius: 20,
+        paddingHorizontal: 5
+    },
+
+    andamento : {
+        color : 'gold',
+        borderColor : 'gold',
+        borderWidth: 1,
+        borderRadius: 20,
+        paddingHorizontal: 5
     }
 })

@@ -3,7 +3,7 @@
 /// tarefa e etc.
 
 import { useState } from "react"
-import { TextInput, StyleSheet, View, Text, Pressable } from "react-native"
+import { TextInput, StyleSheet, View, Text, Pressable, KeyboardType } from "react-native"
 
 import { Colors } from "@/src/constants/theme"
 
@@ -15,7 +15,11 @@ interface LineInputProps {
   error?: boolean;
   errorValue?: string;
   onClosePress: () => void;
-  onChangeText: (text: string) => void
+  onChangeText: (text: string) => void;
+  keyboardType?: KeyboardType;
+  multiline?: boolean;
+  numberOfLines?: number;
+  maxLenght?: number;
 };
 
 /** 
@@ -44,6 +48,19 @@ interface LineInputProps {
  * 
  * @param onChangeText função que é executada toda vez que o texto
  * do input é alterado.
+ * 
+ * @param keyboardType definie o tipo de teclado que irá aparecer.
+ * Ex: Numéric faz com que o teclado numérico apareça. O valor
+ * indefinido é o teclado normal.
+ * 
+ * @param multiline Se for true faz com que seja multilinha. Caso
+ * contrário é apenas uma linha.
+ * 
+ * @param numberOfLines A quantidade de linhas que um input multi
+ * linha pode ter. Se não for definido é igual a uma linha.
+ * 
+ * @param maxLenght Número máximo de carecters que o input pode 
+ * receber.
 */ 
 export default function LineInput({
   value,
@@ -51,7 +68,11 @@ export default function LineInput({
   error,
   errorValue,
   onClosePress,
-  onChangeText 
+  onChangeText,
+  keyboardType,
+  multiline,
+  numberOfLines,
+  maxLenght
 } : LineInputProps){
   const [focus, setFocus] = useState(false);
 
@@ -94,8 +115,12 @@ export default function LineInput({
           focus && styles.textInputFocused,
           error && styles.textInputError
         ]}
+        multiline={multiline}
+        numberOfLines={numberOfLines}
         onChangeText={onChangeText}
+        maxLength={maxLenght}
         value={value}
+        keyboardType={keyboardType}
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
       >
@@ -131,9 +156,9 @@ const styles = StyleSheet.create({
     color: Colors.light.error
   },
   textInput : {
-    height: 56,
     borderWidth: 1,
     padding: 16,
+    paddingRight: 50,
     margin: 5,
     fontSize: 16,
     borderColor: Colors.light.onSurfaceVariant,

@@ -3,17 +3,22 @@ import { Pressable, StyleSheet, Text } from "react-native";
 import { Colors } from "@/src/constants/theme";
 
 export type ButtonProps = {
-  conteudo : string,
-  onPress : () => void
+  conteudo: string;
+  onPress: () => void;
+  desativado?: boolean;
 }
 
 export default function Botao({
   conteudo,
-  onPress
+  onPress,
+  desativado
 } : ButtonProps) {
   return (
     <Pressable
-      style={styles.btn}
+      style={[
+        styles.btn,
+        desativado && styles.btnDesativado
+      ]}
       onPress={onPress}
     >
       <Text 
@@ -26,7 +31,7 @@ export default function Botao({
 }
 
 const styles = StyleSheet.create({
-  btn : {
+  btn: {
     backgroundColor: Colors.light.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -36,6 +41,9 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingLeft: 20,
     borderRadius: 100
+  },
+  btnDesativado: {
+    backgroundColor: Colors.light.onSurfaceVariant
   },
   btnText : {
     color: Colors.light.background,

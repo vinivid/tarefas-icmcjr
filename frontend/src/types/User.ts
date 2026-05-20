@@ -37,13 +37,13 @@ export type Username = string;
  */
 export function createUsername(name : string) : Result<Username, UserInputError> {
   // Nome vazio ou somente espaços
-  if (/\s*/.test(name)) 
+  if (/\s+/.test(name) || name === '')
     return { ok: false, error : UserInputError.Empty };
 
-  // Este regex satânico verifica se o nome do usuário contem caracteres de URL,
+  // Este regex verifica se o nome do usuário contem caracteres de URL,
   // caracteres de controle (\x7F) e espaços no inicio e no fim do nome do usuário
-  const regex = /^(?![ ._-])(?!.*[._-]{2})[^\x00-\x1F\x7F\/\\?#%&+=<>:;"'`|~\[\]\(\)\{\}]{3,32}(?<![ ._-])$/u;
-  if (!(regex.test(name)))
+  const regex = /^\s+|[\x00-\x1F\x7F.$%?!#@]|\s+$/;
+  if (regex.test(name))
     return { ok: false, error : UserInputError.InvalidChars };
 
   if (name.length > 15)
@@ -52,6 +52,40 @@ export function createUsername(name : string) : Result<Username, UserInputError>
   return { ok: true, value: name };
 }
 
+/// Ano de nascimento
+
+/**
+ * Este é um tipo que representa o ano de
+ * nascimento do usuário, garantindo sempre
+ * uma data válida.
+ */
+export type BirthDate = Date;
+
+/**
+ * Cria um BirthDate a partir de uma string.
+ * 
+ * @param date string da qual deseja-se criar um
+ * birth year. Ela deve estar no formato 
+ * dd/mm/aa ou no formato ISO 8601 
+ * @returns um BirthYear valido
+ */
+export function createBirthYear(date : string) : Result<BirthDate, UserInputError> {
+  if (/\s+/.test(date) || date === '') 
+    return { ok: false, error : UserInputError.Empty };
+
+  let dat;
+  if (date.search('/') === -1) 
+    dat = new Date(date);
+  else {
+    const [d, m, y] = date.split('/');    
+    dat = new Date(`${y}-${m}-${d}`);
+  }
+
+  if (isNaN(dat.getTime()))
+    return { ok: false, error : UserInputError.InvalidInput }
+
+  return { ok: true, value: dat };
+}
 /// Senha do usuário
 
 /**
@@ -74,11 +108,11 @@ export type Password = string;
  * as invariantes necessárias. 
  */
 export function createPassword(pass : string) : Result<Password, UserInputError> {
-    if (pass.length < 8)
+  if (pass.length < 8)
     return { ok: false, error : UserInputError.Minlen };
 
   // Senha vazia ou somente espaços
-  if (/\s*/.test(pass))
+  if (/\s+/.test(pass) || pass === '')
     return { ok: false, error : UserInputError.Empty };
 
   // Caracteres de controle
@@ -106,6 +140,9 @@ export function createPassword(pass : string) : Result<Password, UserInputError>
 export type Email = string;
 
 export function createEmail(email : string) : Result<Email, UserInputError> {
+  if (/\s+/.test(email) || email === '')
+    return { ok: false, error : UserInputError.Empty };
+
   email = email.trim();
 
   if (email.length > 256)
@@ -118,7 +155,7 @@ export function createEmail(email : string) : Result<Email, UserInputError> {
   // Esse regex verifica que tem somente 1 @
   // que os dois lados relativos ao @ não são vazios
   // e de que tem pelo menos 1 . na parte do dominio
-  if ( (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(email)) )
+  if ( !(/[^\s@]+@[^\s@]+\.[^\s@]+/.test(email)) ) 
     return { ok: false, error: UserInputError.InvalidInput };
 
   return { ok: true, value: email };
@@ -141,6 +178,11 @@ export type Cpf = string;
  * válido.
  */
 export function createCpf(cpf : string) : Result<Cpf, UserInputError> {
+  cpf = cpf.replace('\b', '');
+
+  if (cpf.search(/[\.-]/))
+    cpf = cpf.split(/[\.-]/).join('')
+
   if (cpf.length > 11) 
     return { ok: false, error: UserInputError.Maxlen };
 

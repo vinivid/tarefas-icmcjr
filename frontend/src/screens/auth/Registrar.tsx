@@ -1,9 +1,12 @@
-import { View } from "react-native";
+import { useState } from "react";
+import { View, StyleSheet, Text, ScrollView } from "react-native";
 
 import { useAuth } from "@/src/context/AuthContext";
 
 import Botao from "@/src/components/Botao";
+import LineInput from "@/src/components/LineInput";
 import UserFieldInput from "@/src/components/auth/UserFieldInput";
+import MaskedUserFieldInput from "@/src/components/auth/MaskedUserFieldInput";
 
 import { UserInputError } from "@/src/types/User";
 
@@ -11,57 +14,142 @@ import useUsernameStr from "@/src/hooks/auth/useUsernameStr";
 import usePasswordStr from "@/src/hooks/auth/usePasswordStr";
 import useEmailStr from "@/src/hooks/auth/useEmailStr";
 import useCpfStr from "@/src/hooks/auth/useCpfStr";
+import useDateStr from "@/src/hooks/auth/useDateStr";
+import { Colors } from "@/src/constants/theme";
 
 /// TODO: implementar senha dupla e estilizar a tela
 export default function Registrar() {
   const { usernameStr, username, setUsernameStr } = useUsernameStr('');
+  const { dateStr, date, setDateStr } = useDateStr('');
   const { emailStr, email, setEmailStr } = useEmailStr('');
   const { cpfStr, cpf, setCpfStr } = useCpfStr('');
   const { passwordStr, password, setPasswordStr } = usePasswordStr('');
+  const [ passwordRepeat, setPasswordRepeat ] = useState('');
+  const [ passwordDiff, setPasswordDiff ] = useState(false);
+  const [ emailRegistered, setEmailRegistered ] = useState(false);
+  const [ cpfRegistered, setCpfRegistered ] = useState(false);
   const { login } = useAuth();
 
   return (
-    <View>
-      <UserFieldInput
-        label="Usuário"
-        fieldStr={usernameStr}
-        fieldRes={username}
-        setFieldStr={setUsernameStr}
-        errorMsg={usernameErrorMsg}
-        placeholder="Nome de usuário"
-      />
-      <UserFieldInput
-        label="Email"
-        fieldStr={emailStr}
-        fieldRes={email}
-        setFieldStr={setEmailStr}
-        keyboardType="email-address"
-        errorMsg={emailErrorMsg}
-        placeholder="Email do usuário"
-      />
-      <UserFieldInput
-        label="Cpf"
-        fieldStr={cpfStr}
-        fieldRes={cpf}
-        setFieldStr={setCpfStr}
-        keyboardType="numeric"
-        errorMsg={cpfErrorMsg}
-        placeholder="Seu Cpf"
-      />
-      <UserFieldInput
-        label="Senha"
-        fieldStr={passwordStr}
-        fieldRes={password}
-        setFieldStr={setPasswordStr}
-        errorMsg={passwordErrorMsg}
-        secureTextEntry={true}
-        placeholder="Sua senha"
-      />
-      <Botao 
-        conteudo="Registar"
-        onPress={() => login()}
+    <View style={{flex: 1, backgroundColor: Colors.light.background}}>
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
       >
-      </Botao>
+        <UserFieldInput
+          label="Usuário"
+          fieldStr={usernameStr}
+          fieldRes={username}
+          setFieldStr={setUsernameStr}
+          errorMsg={usernameErrorMsg}
+          placeholder="Nome de usuário"
+        />
+        <View 
+          style={styles.legendContainer}
+        >
+          <Text 
+            style={styles.legendText}
+          >
+            dd/mm/aaaa
+          </Text>
+          <MaskedUserFieldInput
+            label="Data de nascimento"
+            fieldStr={dateStr}
+            fieldRes={date}
+            setFieldStr={(m, u) => setDateStr(m)}
+            keyboardType="numeric"
+            errorMsg={dateErrorMsg}
+            maxLenght={10}
+            placeholder="dd/mm/aaaa"
+            mask={[/\d/,/\d/,'/',/\d/,/\d/,'/',/\d/,/\d/,/\d/,/\d/]}
+          />
+        </View>
+        <View
+          style={styles.legendContainer}
+        >
+          {emailRegistered && (
+            <Text 
+              style={styles.legendTextError}
+            >
+              Email já registrado
+            </Text>
+          )}
+          <UserFieldInput
+            label="Email"
+            fieldStr={emailStr}
+            fieldRes={email}
+            setFieldStr={setEmailStr}
+            keyboardType="email-address"
+            errorMsg={emailErrorMsg}
+            placeholder="Email do usuário"
+          />
+        </View>
+        <View
+          style={styles.legendContainer}
+        >
+          {cpfRegistered && (
+            <Text 
+              style={styles.legendTextError}
+            >
+              Cpf já registrado
+            </Text>
+          )}
+          <MaskedUserFieldInput
+            label="Cpf"
+            fieldStr={cpfStr}
+            fieldRes={cpf}
+            maxLenght={14}
+            setFieldStr={(m, u) => setCpfStr(m)}
+            keyboardType="numeric"
+            errorMsg={cpfErrorMsg}
+            placeholder="Seu Cpf"
+            mask={[/\d/,/\d/,/\d/,'.',/\d/,/\d/,/\d/,'.',/\d/,/\d/,/\d/,'-',/\d/,/\d/]}
+          />
+        </View>
+        <UserFieldInput
+          label="Senha"
+          fieldStr={passwordStr}
+          fieldRes={password}
+          setFieldStr={(s) => {
+            if (passwordRepeat !== '' && (passwordStr !== passwordRepeat))
+              setPasswordDiff(true);
+            else
+              setPasswordDiff(false);
+            setPasswordStr(s);
+          }}
+          errorMsg={passwordErrorMsg}
+          secureTextEntry={true}
+          placeholder="Sua senha"
+        />
+        <LineInput
+          label="Repita senha"
+          placeholder="Repita sua senha"
+          value={passwordRepeat}
+          onChangeText={(s) => {
+            if (s !== '' && passwordStr !== s)
+              setPasswordDiff(true);
+            else
+              setPasswordDiff(false);
+            setPasswordRepeat(s);
+          }}
+          secureTextEntry={true}
+          onClosePress={() => setPasswordRepeat('')}
+          error={passwordDiff}
+          errorValue="As senhas precisam ser iguais"
+        />
+        { (username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== '') ? (
+          <Botao 
+            conteudo="Registar"
+            onPress={() => login()}
+          />
+        ) : (
+          <Botao 
+            conteudo="Registar"
+            onPress={() => {}}
+            desativado={true}
+          />
+        )}
+
+      </ScrollView>
     </View>
   )
 }
@@ -79,7 +167,20 @@ function usernameErrorMsg(err : UserInputError) {
   return "Erro impossível";
 }
 
+function dateErrorMsg(err : UserInputError) {
+  if (err === UserInputError.Empty) 
+    return "É necessário preencher a data";
+
+  if (err === UserInputError.InvalidInput)
+    return "Data inválida";
+
+  return "Erro impossível";
+}
+
 function emailErrorMsg(err : UserInputError) {
+  if (err === UserInputError.Empty)
+    return "É necessário preencher o email";
+
   if (err === UserInputError.Maxlen)
     return "O número máximo de carcteres é 256";
 
@@ -94,7 +195,7 @@ function emailErrorMsg(err : UserInputError) {
 
 function cpfErrorMsg(err : UserInputError) {
   if (err === UserInputError.Maxlen || err === UserInputError.Minlen)
-    return "O cpf tem exatamente 11 caracteres";
+    return "O cpf tem exatamente 11 digitos";
 
   if (err === UserInputError.InvalidInput)
     return "Cpf inválido";
@@ -120,3 +221,28 @@ function passwordErrorMsg(err : UserInputError) {
   
   return "Erro impossivl";
 }
+
+const styles = StyleSheet.create({
+  legendText : {
+    color: Colors.light.onSurfaceVariant,
+    fontFamily: "RobotoMono_300Light",
+    fontSize: 12,
+    marginLeft: 5
+  },
+  legendContainer : {
+    rowGap: 10
+  },
+  legendTextError : {
+    color: Colors.light.error,
+    fontFamily: "RobotoMono_400Regular",
+    fontSize: 12,
+    marginLeft: 5
+  },
+  scrollView : {
+    flex: 1,
+    flexDirection: 'column',
+    marginTop: 75,
+    rowGap: 44,
+    marginHorizontal: '11%'
+  }
+})

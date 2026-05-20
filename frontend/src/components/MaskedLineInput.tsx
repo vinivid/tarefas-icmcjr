@@ -1,21 +1,22 @@
-/// Component para os inputs de uma linha 
-/// como nome de usuário, senha, titulo de 
-/// tarefa e etc.
+/// Component para os inputs de uma linha
+/// com mascaras
 
 import { useState } from "react"
-import { TextInput, StyleSheet, View, Text, Pressable, KeyboardType } from "react-native"
+import { StyleSheet, View, Text, Pressable, KeyboardType } from "react-native"
+import MaskInput, { Mask } from 'react-native-mask-input';
 
 import { Colors } from "@/src/constants/theme"
 
-import { MaterialCommunityIcons } from "@expo/vector-icons"; 
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export interface LineInputProps {
   value: string;
   label: string;
   error?: boolean;
   errorValue?: string;
+  mask: Mask;
   onClosePress: () => void;
-  onChangeText: (text: string) => void;
+  onChangeText: (masked: string, unmasked : string) => void;
   placeholder?: string;
   keyboardType?: KeyboardType;
   multiline?: boolean;
@@ -77,12 +78,14 @@ export interface LineInputProps {
  * @param onFocus função a ser executada quando o input é focado
  * 
  * @param onBlur função a ser executada quando o input é desfocado
+ * 
 */ 
-export default function LineInput({
+export default function MaskedLineInput({
   value,
   label,
   error,
   errorValue,
+  mask,
   onClosePress,
   onChangeText,
   placeholder,
@@ -131,7 +134,7 @@ export default function LineInput({
       >
         {label}
       </Text>  
-      <TextInput
+      <MaskInput
         style={[styles.textInput,
           focus && styles.textInputFocused,
           error && styles.textInputError
@@ -155,8 +158,9 @@ export default function LineInput({
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
         editable={editable}
+        mask={mask}
       >
-      </TextInput>
+      </MaskInput>
       {error && (
         <Text 
           style={styles.errorText}

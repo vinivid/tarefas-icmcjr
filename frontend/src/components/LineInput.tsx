@@ -27,50 +27,32 @@ export interface LineInputProps {
 
 /** 
  * @param value é o valor que vai estar escrito na caixa de texto
- * geralmente ele vai ser dado por um useState('') do texto
- * de input dado por onChangeText.
- * Ex:
- * const [texto, setTexto] = useState('');
  * 
- * <LineInput value={texto} onChangeText={setTexto} />
- *
- * Cria um LineInput cujo estado é controlado pelo componente
- * que instância ele.
+ * @param label é a pequena caixa de texto que indica do que é o input.
  * 
- * @param label é a pequena caixa de texto que indica do que
- * é o input.
+ * @param error valor que indica se o valor do LineInput tem algum erro.
  * 
- * @param error valor que indica se o valor do LineInput
- * tem algum erro. Quando true deixa o input no estilo de erro.
+ * @param errorValue mensagem de erro que irá aparecer abaixo do input.
  * 
- * @param errorValue mensagem de erro que irá aparecer abaixo
- * do input quando error for verdadeiro.
+ * @param onClosePress função executada quando o botão de fechar for pressionado.
  * 
- * @param onClosePress função que será executada quando o botão
- * de fechar for pressionado.
- * 
- * @param onChangeText função que é executada toda vez que o texto
- * do input é alterado.
+ * @param onChangeText função executada toda vez que o texto é alterado.
  * 
  * @param placeholder texto de placeholder
  * 
- * @param keyboardType definie o tipo de teclado que irá aparecer.
- * Ex: Numéric faz com que o teclado numérico apareça. O valor
- * indefinido é o teclado normal.
+ * @param keyboardType define o tipo de teclado que irá aparecer.
  * 
- * @param multiline Se for true faz com que seja multilinha. Caso
- * contrário é apenas uma linha.
+ * @param multiline Se for true faz com que seja multilinha.
  * 
- * @param numberOfLines A quantidade de linhas que um input multi
- * linha pode ter. Se não for definido é igual a uma linha.
+ * @param numberOfLines quantidade de linhas de um input multilinha.
  * 
- * @param maxLenght Número máximo de carecters que o input pode 
- * receber.
+ * @param maxLenght número máximo de caracteres.
  * 
- * @param secureTextEntry flag que indica se é um input que deve
- * ser escondido
+ * @param secureTextEntry se true, esconde o texto e mostra ícone de olho
+ * para alternar a visibilidade.
  * 
- * @param editable flag que coloca o input como editavel ou não.
+ * @param editable flag que coloca o input como editável ou não.
+ * Quando false, o ícone de fechar e o olho ficam ocultos.
 */ 
 export default function LineInput({
   value,
@@ -89,42 +71,64 @@ export default function LineInput({
 } : LineInputProps){
   const [focus, setFocus] = useState(false);
 
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
+
+  const mostrarIcones = editable !== false;
+
   return (
     <View>
-      {!error && (
+
+      {mostrarIcones && secureTextEntry && (
+        <Pressable
+          style={styles.eyeIcon}
+          onPress={() => setSenhaVisivel(!senhaVisivel)}
+        >
+          <MaterialCommunityIcons
+            name={senhaVisivel ? "eye" : "eye-off"}
+            size={24}
+            color={Colors.light.onSurfaceVariant}
+          />
+        </Pressable>
+      )}
+
+      {mostrarIcones && !secureTextEntry && !error && (
         <Pressable 
           style={styles.closeIcon} 
           onPress={onClosePress}
         >
           <MaterialCommunityIcons 
             name="close-circle" 
-            size={30} 
+            size={28} 
             color={Colors.light.onSurfaceVariant}
           />
         </Pressable>
       )}
-      {error && (
+      {mostrarIcones && !secureTextEntry && error && (
         <Pressable 
           style={styles.closeIcon} 
           onPress={onClosePress}
         >
           <MaterialCommunityIcons  
             name="alert-circle" 
-            size={30} 
+            size={28} 
             color={Colors.light.error}
           />
         </Pressable>
       )}
+
       <Text
-        style={[styles.label,
+        style={[
+          styles.label,
           focus && styles.labelFocused,
           error && styles.labelError
         ]}
       >
         {label}
       </Text>  
+
       <TextInput
-        style={[styles.textInput,
+        style={[
+          styles.textInput,
           focus && styles.textInputFocused,
           error && styles.textInputError
         ]}
@@ -137,17 +141,16 @@ export default function LineInput({
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
         placeholder={placeholder}
-        secureTextEntry={secureTextEntry}
+        secureTextEntry={secureTextEntry && !senhaVisivel}
         editable={editable}
-      >
-      </TextInput>
+      />
+
       {error && (
-        <Text 
-          style={styles.errorText}
-        >
+        <Text style={styles.errorText}>
           {errorValue}
         </Text>
       )}
+
     </View>
   )
 }
@@ -173,10 +176,10 @@ const styles = StyleSheet.create({
   },
   textInput : {
     borderWidth: 1,
-    padding: 16,
+    padding: 14,
     paddingRight: 50,
     margin: 5,
-    fontSize: 16,
+    fontSize: 15,
     borderColor: Colors.light.onSurfaceVariant,
     color: Colors.light.onSurface,
     borderRadius: 4,
@@ -193,14 +196,21 @@ const styles = StyleSheet.create({
   closeIcon : {
     position: 'absolute',
     right: 20,
-    top: 18,
+    top: 20,
+    elevation: 1,
+    zIndex: 50
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 20,
+    top: 22,
     elevation: 1,
     zIndex: 50
   },
   errorText : {
     paddingLeft: 30,
     color: Colors.light.error,
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "RobotoMono_400Regular"
   }
 })

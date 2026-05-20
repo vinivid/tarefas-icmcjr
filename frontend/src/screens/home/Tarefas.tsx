@@ -8,7 +8,7 @@ export default function Tarefas() {
   return (
     <View>
       <Text style={{color: 'red'}}>Tela de tarefas</Text>
-      <TarefaCard titulo="teste" desc={desc} prazo={data} finished={false}></TarefaCard>
+      <TarefaCard titulo="Tarefa de teste" desc={desc} prazo={data} finished={false}></TarefaCard>
     </View>
   )
 }

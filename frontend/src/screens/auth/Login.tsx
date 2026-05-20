@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, Platform  } from "react-native";
 
 import { LoginError, useAuth } from "@/src/context/AuthContext";
 
@@ -43,114 +43,119 @@ export default function Login() {
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.light.background}}>
-      <View 
-        style={styles.loginView}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
         <View 
-          style={styles.legendContainer}
+          style={styles.loginView}
         >
-          {cpfNotFound && (
-            <Text 
-              style={styles.legendTextError}
-            >
-              Cpf não registrado
-            </Text>
-          )}
-          {emailNotFound && (
-            <Text 
-              style={styles.legendTextError}
-            >
-              Email não registrado
-            </Text>
-          )}
-          <LineInput
-            label="Email/cpf do usuário"
-            onChangeText={(s) => {
-              if (/^[\d.-]+$/.test(s)) 
-                setLogType(LoginType.Cpf);
-              else
-                setLogType(LoginType.Email);
-              setLogVal(s);
-              setErrEmailCpf(false);
-              setCpfNotFound(false);
-              setEmailNotFound(false);
-            }}
-            error={errEmailCpf}
-            errorValue="Email/Cpf inválido"
-            onClosePress={() => setLogVal('')}
-            value={logVal}
-            placeholder="Email/cpf "
-          />
-        </View>
+          <View 
+            style={styles.legendContainer}
+          >
+            {cpfNotFound && (
+              <Text 
+                style={styles.legendTextError}
+              >
+                Cpf não registrado
+              </Text>
+            )}
+            {emailNotFound && (
+              <Text 
+                style={styles.legendTextError}
+              >
+                Email não registrado
+              </Text>
+            )}
+            <LineInput
+              label="Email/cpf do usuário"
+              onChangeText={(s) => {
+                if (/^[\d.-]+$/.test(s)) 
+                  setLogType(LoginType.Cpf);
+                else
+                  setLogType(LoginType.Email);
+                setLogVal(s);
+                setErrEmailCpf(false);
+                setCpfNotFound(false);
+                setEmailNotFound(false);
+              }}
+              error={errEmailCpf}
+              errorValue="Email/Cpf inválido"
+              onClosePress={() => setLogVal('')}
+              value={logVal}
+              placeholder="Email/cpf "
+            />
+          </View>
 
-        <View 
-          style={styles.legendContainer}
-        >
-          {wrongPassword && (
-            <Text 
-              style={styles.legendTextError}
-            >
-              Senha errada
-            </Text>
-          )}
-          <LineInput
-            label="Senha"
-            onChangeText={(s) => {
-              setErrPass(false);
-              setPassVal(s);
-              setWrongPassword(false);
-            }}
-            error={errPass}
-            errorValue="Senha inválida"
-            onClosePress={() => setLogVal('')}
-            value={passVal}
-            secureTextEntry={true}
-            placeholder="Senha"
-          />
-        </View>
-        <View 
-          style={styles.legendContainer}
-        >
-          {otherError && (
-            <Text 
-              style={styles.legendTextError}
-            >
-              Senha errada
-            </Text>
-          )}
-          <Botao 
-            conteudo="Logar"
-            onPress={() => {
-              const password = createPassword(passVal);
-              if (!password.ok) {
-                setErrPass(true);
-                return;
-              }
-
-              if (logType === LoginType.Email) {
-                const email = createEmail(logVal);
-                if (email.ok) {
-                  const lRes = login(password.value, email.value)
-                  if (lRes !== null)
-                    loginError(lRes);
-
-                } else {
-                  setErrEmailCpf(true);
+          <View 
+            style={styles.legendContainer}
+          >
+            {wrongPassword && (
+              <Text 
+                style={styles.legendTextError}
+              >
+                Senha errada
+              </Text>
+            )}
+            <LineInput
+              label="Senha"
+              onChangeText={(s) => {
+                setErrPass(false);
+                setPassVal(s);
+                setWrongPassword(false);
+              }}
+              error={errPass}
+              errorValue="Senha inválida"
+              onClosePress={() => setLogVal('')}
+              value={passVal}
+              secureTextEntry={true}
+              placeholder="Senha"
+            />
+          </View>
+          <View 
+            style={styles.legendContainer}
+          >
+            {otherError && (
+              <Text 
+                style={styles.legendTextError}
+              >
+                Senha errada
+              </Text>
+            )}
+            <Botao 
+              conteudo="Logar"
+              onPress={() => {
+                const password = createPassword(passVal);
+                if (!password.ok) {
+                  setErrPass(true);
+                  return;
                 }
-              } else {
-                const cpf = createCpf(logVal);
-                if (cpf.ok) {
-                  const lRes = login(password.value, undefined, cpf.value)
-                  if (lRes !== null)
-                    loginError(lRes);
+
+                if (logType === LoginType.Email) {
+                  const email = createEmail(logVal);
+                  if (email.ok) {
+                    const lRes = login(password.value, email.value)
+                    if (lRes !== null)
+                      loginError(lRes);
+
+                  } else {
+                    setErrEmailCpf(true);
+                  }
                 } else {
-                  setErrEmailCpf(true);
+                  const cpf = createCpf(logVal);
+                  if (cpf.ok) {
+                    const lRes = login(password.value, undefined, cpf.value)
+                    if (lRes !== null)
+                      loginError(lRes);
+                  } else {
+                    setErrEmailCpf(true);
+                  }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </View>
   )
 }

@@ -26,7 +26,7 @@ type AuthContextType = {
     email: Email,
     cpf: Cpf,
     pass: Password
-  ) => boolean | RegisterError
+  ) => RegisterError | null
   login : () => boolean;
   logout : () => void
 }
@@ -66,7 +66,7 @@ export function AuthProvider({
 
     // O OtherError seria para erros de conexão e etc
     setAuth(true);
-    return true;
+    return null;
   } 
 
   const login = () => {

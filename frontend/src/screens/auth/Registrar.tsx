@@ -15,10 +15,13 @@ import usePasswordStr from "@/src/hooks/auth/usePasswordStr";
 import useEmailStr from "@/src/hooks/auth/useEmailStr";
 import useCpfStr from "@/src/hooks/auth/useCpfStr";
 import useDateStr from "@/src/hooks/auth/useDateStr";
+import { RegisterError } from "@/src/context/AuthContext";
 import { Colors } from "@/src/constants/theme";
 
 /// TODO: implementar senha dupla e estilizar a tela
 export default function Registrar() {
+  const { register } = useAuth();
+
   const { usernameStr, username, setUsernameStr } = useUsernameStr('');
   const { dateStr, date, setDateStr } = useDateStr('');
   const { emailStr, email, setEmailStr } = useEmailStr('');
@@ -28,6 +31,7 @@ export default function Registrar() {
   const [ passwordDiff, setPasswordDiff ] = useState(false);
   const [ emailRegistered, setEmailRegistered ] = useState(false);
   const [ cpfRegistered, setCpfRegistered ] = useState(false);
+  const [ otherError, setOtherError ] = useState(false);
   const { login } = useAuth();
 
   return (
@@ -77,7 +81,10 @@ export default function Registrar() {
             label="Email"
             fieldStr={emailStr}
             fieldRes={email}
-            setFieldStr={setEmailStr}
+            setFieldStr={(s) => {
+              setEmailRegistered(false);
+              setEmailStr(s);
+            }}
             keyboardType="email-address"
             errorMsg={emailErrorMsg}
             placeholder="Email do usuário"
@@ -98,7 +105,10 @@ export default function Registrar() {
             fieldStr={cpfStr}
             fieldRes={cpf}
             maxLenght={14}
-            setFieldStr={(m, u) => setCpfStr(m)}
+            setFieldStr={(m, u) => {
+              setCpfRegistered(false);
+              setCpfStr(m);
+            }}
             keyboardType="numeric"
             errorMsg={cpfErrorMsg}
             placeholder="Seu Cpf"
@@ -136,18 +146,40 @@ export default function Registrar() {
           error={passwordDiff}
           errorValue="As senhas precisam ser iguais"
         />
-        { (username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== '') ? (
-          <Botao 
-            conteudo="Registar"
-            onPress={() => login()}
-          />
-        ) : (
-          <Botao 
-            conteudo="Registar"
-            onPress={() => {}}
-            desativado={true}
-          />
-        )}
+        <View 
+          style={styles.legendContainer}
+        >
+          { otherError && (
+            <Text
+              style={styles.legendTextError}
+            >
+              Um erro ocorreu ao tentar registrar
+            </Text>
+          )}
+
+          { (username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== '') ? (
+            <Botao 
+              conteudo="Registar"
+              onPress={() => {
+                const v = register(username.value, date.value, email.value, cpf.value, password.value);
+                if (v !== null) {
+                  if (v === RegisterError.CpfExists)
+                    return setCpfRegistered(true);
+                  if (v === RegisterError.EmailExists)
+                    return setEmailRegistered(true);
+                  else 
+                    setOtherError(true);
+                }
+              }}
+            />
+          ) : (
+            <Botao 
+              conteudo="Registar"
+              onPress={() => {}}
+              desativado={true}
+            />
+          )}
+        </View>
 
       </ScrollView>
     </View>

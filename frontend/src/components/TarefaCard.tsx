@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
+import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../constants/theme";
 import { useState } from "react";
 
@@ -31,9 +31,12 @@ export default function TarefaCard({
             </Text>
 
             <View style={styles.flex}>
-                <Text style={styles.data}>
-                    {prazo.toLocaleDateString("pt-br")}
-                </Text>
+                <View style={styles.flexdata}>
+                    <MaterialIcons name="calendar-today" size={24} color={Colors.light.primary}/>
+                    <Text style={styles.data}>
+                        {prazo.toLocaleDateString("pt-br")}
+                    </Text>
+                </View>
 
                 <Pressable onPress={() => setTerminada(prev => !prev)}>
                     <Text style={ terminada ? styles.finalizado : styles.andamento }>
@@ -42,10 +45,18 @@ export default function TarefaCard({
                 </Pressable>
             </View>
 
-            <Pressable onPress={() => setExpandida(prev => !prev)}>
-                <Text style={ expandida ? styles.desc : styles.mais }>
-                    { expandida ? desc : 'v' }
+            {expandida && (
+                <Text style={styles.desc}>
+                {desc}
                 </Text>
+            )}
+
+            <Pressable onPress={() => setExpandida(prev => !prev)}>
+                <MaterialIcons 
+                    name={expandida ? "expand-less" : "expand-more"}
+                    size={24}
+                    style={styles.mais}
+                />
             </Pressable>
         </View>
     )
@@ -55,42 +66,62 @@ const styles = StyleSheet.create({
     card : {
         backgroundColor: 'white',
         alignSelf: 'center',
-        borderWidth: 1,
+
+        borderWidth: 0,
         borderColor: Colors.light.primary,
         borderRadius: 20,
+
+        shadowColor: Colors.light.primary,
+        shadowOffset: {width: 0, height: 0},
+        shadowOpacity: 1,
+        shadowRadius: 10,
+        elevation: 10,
+
         width: '90%',
-        paddingVertical: 50,
-        paddingHorizontal: 20
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        gap: 12
     },
 
     titulo : {
         color: Colors.light.primary,
         fontWeight: 800,
-        fontSize: 20
+        fontSize: 20,
+        marginTop: 5
     },
 
     flex : {
         flexDirection: 'row',
-        justifyContent: 'space-between' 
+        justifyContent: 'space-between', 
+        alignItems: 'center'
+    },
+
+    flexdata : {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10
     },
 
     data : {
         color: Colors.light.primary,
+        fontSize: 15,
         fontWeight: 800
     },
 
     finalizado : {
-        color : 'green',
-        borderColor : 'green',
-        borderWidth: 1,
+        color: 'green',
+        fontWeight: 600,
+        borderColor: 'green',
+        borderWidth: 2,
         borderRadius: 20,
         paddingHorizontal: 5
     },
 
     andamento : {
-        color: 'gold',
-        borderColor: 'gold',
-        borderWidth: 1,
+        color: 'goldenrod',
+        borderColor: 'goldenrod',
+        fontWeight: 600,
+        borderWidth: 2,
         borderRadius: 20,
         paddingHorizontal: 5
     },
@@ -101,6 +132,6 @@ const styles = StyleSheet.create({
     },
 
     desc : {
-        color: 'grey'
+        color: 'gray'
     }
 })

@@ -1,4 +1,15 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { type Username, type BirthDate, type Email, type Cpf, type Password } from "@/src/types/User";
+
+// Erros relativos a criação de váriaves de usuário
+export const RegisterError = {
+  EmailExists: "EMAIL_EXISTS",
+  CpfExists: "CPF_EXISTS",
+  OtherError: "OTHER_ERROR"
+}
+
+export type RegisterError = 
+  typeof RegisterError[keyof typeof RegisterError];
 
 type Usuario = {
   nome: string;
@@ -10,9 +21,14 @@ type Usuario = {
 
 type AuthContextType = {
   auth: boolean;
-  user: Usuario | null;
-  login: () => boolean;
-  logout: () => void;
+  register: (username : Username, 
+    birthDate : BirthDate,
+    email: Email,
+    cpf: Cpf,
+    pass: Password
+  ) => boolean | RegisterError
+  login : () => boolean;
+  logout : () => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,6 +50,25 @@ export function AuthProvider({
   const [auth, setAuth] = useState(false);
   const [user, setUser] = useState<Usuario | null>(null);
 
+  // Sempre retorna true quando ocorre sem falhas
+  const register = (username : Username, birthDate : BirthDate, 
+    email : Email, cpf : Cpf, password : Password
+  ) => {
+    // Deixando apenas um usuário existente como exemplo
+    // Em teoria seria feito um fetch enviando tods estes dados e seria
+    // retornado uma token de login
+
+    if (email === 'asd@g.c')
+      return RegisterError.EmailExists;
+
+    if (cpf === '51921128852')
+      return RegisterError.CpfExists;
+
+    // O OtherError seria para erros de conexão e etc
+    setAuth(true);
+    return true;
+  } 
+
   const login = () => {
     setUser(USUARIO_FICTICIO);
     setAuth(true);
@@ -46,7 +81,7 @@ export function AuthProvider({
   }
 
   return (
-    <AuthContext.Provider value={{ auth, user, login, logout }}>
+    <AuthContext.Provider value={{auth, register, login, logout}}>
       {children}
     </AuthContext.Provider>
   )

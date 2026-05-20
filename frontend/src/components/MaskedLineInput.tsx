@@ -1,21 +1,22 @@
-/// Component para os inputs de uma linha 
-/// como nome de usuário, senha, titulo de 
-/// tarefa e etc.
+/// Component para os inputs de uma linha
+/// com mascaras
 
 import { useState } from "react"
-import { TextInput, StyleSheet, View, Text, Pressable, KeyboardType } from "react-native"
+import { StyleSheet, View, Text, Pressable, KeyboardType } from "react-native"
+import MaskInput, { Mask } from 'react-native-mask-input';
 
 import { Colors } from "@/src/constants/theme"
 
-import { MaterialCommunityIcons } from "@expo/vector-icons"; 
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export interface LineInputProps {
   value: string;
   label: string;
   error?: boolean;
   errorValue?: string;
+  mask: Mask;
   onClosePress: () => void;
-  onChangeText: (text: string) => void;
+  onChangeText: (masked: string, unmasked : string) => void;
   placeholder?: string;
   keyboardType?: KeyboardType;
   multiline?: boolean;
@@ -29,41 +30,62 @@ export interface LineInputProps {
 
 /** 
  * @param value é o valor que vai estar escrito na caixa de texto
+ * geralmente ele vai ser dado por um useState('') do texto
+ * de input dado por onChangeText.
+ * Ex:
+ * const [texto, setTexto] = useState('');
  * 
- * @param label é a pequena caixa de texto que indica do que é o input.
+ * <LineInput value={texto} onChangeText={setTexto} />
+ *
+ * Cria um LineInput cujo estado é controlado pelo componente
+ * que instância ele.
  * 
- * @param error valor que indica se o valor do LineInput tem algum erro.
+ * @param label é a pequena caixa de texto que indica do que
+ * é o input.
  * 
- * @param errorValue mensagem de erro que irá aparecer abaixo do input.
+ * @param error valor que indica se o valor do LineInput
+ * tem algum erro. Quando true deixa o input no estilo de erro.
  * 
- * @param onClosePress função executada quando o botão de fechar for pressionado.
+ * @param errorValue mensagem de erro que irá aparecer abaixo
+ * do input quando error for verdadeiro.
  * 
- * @param onChangeText função executada toda vez que o texto é alterado.
+ * @param onClosePress função que será executada quando o botão
+ * de fechar for pressionado.
+ * 
+ * @param onChangeText função que é executada toda vez que o texto
+ * do input é alterado.
  * 
  * @param placeholder texto de placeholder
  * 
- * @param keyboardType define o tipo de teclado que irá aparecer.
+ * @param keyboardType definie o tipo de teclado que irá aparecer.
+ * Ex: Numéric faz com que o teclado numérico apareça. O valor
+ * indefinido é o teclado normal.
  * 
- * @param multiline Se for true faz com que seja multilinha.
+ * @param multiline Se for true faz com que seja multilinha. Caso
+ * contrário é apenas uma linha.
  * 
- * @param numberOfLines quantidade de linhas de um input multilinha.
+ * @param numberOfLines A quantidade de linhas que um input multi
+ * linha pode ter. Se não for definido é igual a uma linha.
  * 
- * @param maxLenght número máximo de caracteres.
+ * @param maxLenght Número máximo de carecters que o input pode 
+ * receber.
  * 
- * @param secureTextEntry se true, esconde o texto e mostra ícone de olho
- * para alternar a visibilidade.
+ * @param secureTextEntry flag que indica se é um input que deve
+ * ser escondido
  * 
  * @param editable flag que coloca o input como editavel ou não.
  * 
  * @param onFocus função a ser executada quando o input é focado
  * 
  * @param onBlur função a ser executada quando o input é desfocado
+ * 
 */ 
-export default function LineInput({
+export default function MaskedLineInput({
   value,
   label,
   error,
   errorValue,
+  mask,
   onClosePress,
   onChangeText,
   placeholder,
@@ -78,64 +100,42 @@ export default function LineInput({
 } : LineInputProps){
   const [focus, setFocus] = useState(false);
 
-  const [senhaVisivel, setSenhaVisivel] = useState(false);
-
-  const mostrarIcones = editable !== false;
-
   return (
     <View>
-
-      {mostrarIcones && secureTextEntry && (
-        <Pressable
-          style={styles.eyeIcon}
-          onPress={() => setSenhaVisivel(!senhaVisivel)}
-        >
-          <MaterialCommunityIcons
-            name={senhaVisivel ? "eye" : "eye-off"}
-            size={24}
-            color={Colors.light.onSurfaceVariant}
-          />
-        </Pressable>
-      )}
-
-      {mostrarIcones && !secureTextEntry && !error && (
+      {!error && (
         <Pressable 
           style={styles.closeIcon} 
           onPress={onClosePress}
         >
           <MaterialCommunityIcons 
             name="close-circle" 
-            size={28} 
+            size={30} 
             color={Colors.light.onSurfaceVariant}
           />
         </Pressable>
       )}
-      {mostrarIcones && !secureTextEntry && error && (
+      {error && (
         <Pressable 
           style={styles.closeIcon} 
           onPress={onClosePress}
         >
           <MaterialCommunityIcons  
             name="alert-circle" 
-            size={28} 
+            size={30} 
             color={Colors.light.error}
           />
         </Pressable>
       )}
-
       <Text
-        style={[
-          styles.label,
+        style={[styles.label,
           focus && styles.labelFocused,
           error && styles.labelError
         ]}
       >
         {label}
       </Text>  
-
-      <TextInput
-        style={[
-          styles.textInput,
+      <MaskInput
+        style={[styles.textInput,
           focus && styles.textInputFocused,
           error && styles.textInputError
         ]}
@@ -156,16 +156,18 @@ export default function LineInput({
           setFocus(false);
         }}
         placeholder={placeholder}
-        secureTextEntry={secureTextEntry && !senhaVisivel}
+        secureTextEntry={secureTextEntry}
         editable={editable}
-      />
-
+        mask={mask}
+      >
+      </MaskInput>
       {error && (
-        <Text style={styles.errorText}>
+        <Text 
+          style={styles.errorText}
+        >
           {errorValue}
         </Text>
       )}
-
     </View>
   )
 }
@@ -191,10 +193,10 @@ const styles = StyleSheet.create({
   },
   textInput : {
     borderWidth: 1,
-    padding: 14,
+    padding: 16,
     paddingRight: 50,
     margin: 5,
-    fontSize: 15,
+    fontSize: 16,
     borderColor: Colors.light.onSurfaceVariant,
     color: Colors.light.onSurface,
     borderRadius: 4,
@@ -211,21 +213,14 @@ const styles = StyleSheet.create({
   closeIcon : {
     position: 'absolute',
     right: 20,
-    top: 20,
-    elevation: 1,
-    zIndex: 50
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 20,
-    top: 22,
+    top: 18,
     elevation: 1,
     zIndex: 50
   },
   errorText : {
     paddingLeft: 30,
     color: Colors.light.error,
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "RobotoMono_400Regular"
   }
 })

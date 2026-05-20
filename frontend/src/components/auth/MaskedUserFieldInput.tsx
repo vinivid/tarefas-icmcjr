@@ -1,18 +1,20 @@
 import { KeyboardType } from "react-native";
+import { Mask } from 'react-native-mask-input';
 
 import { UserInputError } from "@/src/types/User";
 import { Result } from "@/src/types/Result";
-import LineInput from "@/src/components/LineInput";
+import MaskedLineInput from "@/src/components/MaskedLineInput";
 
 export interface UserFieldInputProps<T> {
   label: string;
   fieldStr: string;
   fieldRes: Result<T, UserInputError>;
+  mask: Mask;
   keyboardType?: KeyboardType;
   secureTextEntry?: boolean;
   placeholder?: string;
   maxLenght?: number;
-  setFieldStr: (v : string) => void;
+  setFieldStr: (masked : string, unmasked : string) => void;
   errorMsg: (err : UserInputError) => string;
 }
 
@@ -27,6 +29,8 @@ export interface UserFieldInputProps<T> {
  * 
  * @param fieldRes o result advindo de tentar 
  * criar o tipo T apartir da fieldStr.
+ * 
+ * @param mask mascara do input field
  * 
  * @param keyboardtype tipo de teclado quando para
  * entrada. "numeric" para númerico e não colocar
@@ -46,10 +50,11 @@ export interface UserFieldInputProps<T> {
  * gera a string que explica o erro de input para o
  * usuário
  */
-export default function UserFieldInput<T>({
+export default function MaskedUserFieldInput<T>({
   label,
   fieldStr,
   fieldRes,
+  mask,
   keyboardType,
   secureTextEntry,
   placeholder,
@@ -61,17 +66,18 @@ export default function UserFieldInput<T>({
   return (
     <>
     {fieldRes.ok ? (
-      <LineInput
+      <MaskedLineInput
         label={label}
         value={fieldStr}
         onChangeText={setFieldStr}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         placeholder={placeholder}
-        onClosePress={() => setFieldStr('')}
+        onClosePress={() => setFieldStr('', '')}
+        mask={mask}
       />
     ) : (
-      <LineInput
+      <MaskedLineInput
         label={label}
         value={fieldStr}
         onChangeText={setFieldStr}
@@ -86,7 +92,8 @@ export default function UserFieldInput<T>({
           )
         }
         errorValue={errorMsg(fieldRes.error)}
-        onClosePress={() => setFieldStr('')}
+        onClosePress={() => setFieldStr('', '')}
+        mask={mask}
       />
     )}
     </>

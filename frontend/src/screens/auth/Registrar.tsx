@@ -18,7 +18,6 @@ import useDateStr from "@/src/hooks/auth/useDateStr";
 import { RegisterError } from "@/src/context/AuthContext";
 import { Colors } from "@/src/constants/theme";
 
-/// TODO: implementar senha dupla e estilizar a tela
 export default function Registrar() {
   const { register } = useAuth();
 
@@ -32,7 +31,6 @@ export default function Registrar() {
   const [ emailRegistered, setEmailRegistered ] = useState(false);
   const [ cpfRegistered, setCpfRegistered ] = useState(false);
   const [ otherError, setOtherError ] = useState(false);
-  const { login } = useAuth();
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.light.background}}>

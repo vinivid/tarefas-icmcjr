@@ -9,12 +9,16 @@ export default function Init() {
   const navigation = useNavigation<AuthScreenNavigationProp>();
 
   return (
-    <View>
+    <View
+      style={{flex:1, rowGap: 40}}
+    >
       <Image 
         style={styles.img} 
         source={require('@/src/assets/images/stock_init.jpg')}
         />
-        <View>
+        <View
+          style={{rowGap:20}}
+        >
           <Botao 
             conteudo="Login"
             onPress={ () => navigation.push('Login') }

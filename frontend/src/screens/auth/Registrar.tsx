@@ -269,10 +269,11 @@ const styles = StyleSheet.create({
     marginLeft: 5
   },
   scrollView : {
-    flex: 1,
     flexDirection: 'column',
     marginTop: 75,
     rowGap: 44,
-    marginHorizontal: '11%'
+    marginHorizontal: '11%',
+    flexGrow: 1,
+    paddingBottom: 200
   }
 })

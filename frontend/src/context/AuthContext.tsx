@@ -11,6 +11,16 @@ export const RegisterError = {
 export type RegisterError = 
   typeof RegisterError[keyof typeof RegisterError];
 
+export const LoginError = {
+  EmailNotFound: "USR_NOT_FOUND",
+  CpfNotFound: "CPF_NOT_FOUND",
+  WrongPassword: "WRONG_PASSWORD",
+  OtherError: "OTHER_ERROR"
+}
+
+export type LoginError = 
+  typeof LoginError[keyof typeof LoginError];
+
 type Usuario = {
   nome: string;
   dataNascimento: string;
@@ -27,7 +37,10 @@ type AuthContextType = {
     cpf: Cpf,
     pass: Password
   ) => RegisterError | null
-  login : () => boolean;
+  login : (password: Password, 
+    email?: Email, 
+    cpf?: Cpf
+  ) => LoginError | null;
   logout : () => void
 }
 
@@ -61,18 +74,45 @@ export function AuthProvider({
     if (email === 'asd@g.c')
       return RegisterError.EmailExists;
 
-    if (cpf === '51921128852')
+    if (cpf === '94124923082')
       return RegisterError.CpfExists;
 
     // O OtherError seria para erros de conexão e etc
+    setUser(USUARIO_FICTICIO);
     setAuth(true);
     return null;
   } 
 
-  const login = () => {
-    setUser(USUARIO_FICTICIO);
-    setAuth(true);
-    return true;
+  const login = (password: Password, email?: Email, cpf?: Cpf) => {
+    if (email === undefined && cpf === undefined)
+      throw new Error("Um email ou cpf devem ser passados para o login");
+
+    // Tenta logar utilizando o email
+    if (email !== undefined) {
+      // colocando um caminho como exemplo de email inexistente
+      if (email === "a@g.c")
+        return LoginError.EmailNotFound;
+
+      // Colocando uma senha errada como exemplo
+      if (password === '12345679')
+        return LoginError.WrongPassword;
+
+      setUser(USUARIO_FICTICIO);
+      setAuth(true);
+      return null;
+    } else {
+      // colocando um caminho como exemplo de cpf inexistente
+      if (cpf === "94124923082")
+        return LoginError.CpfNotFound;
+
+      // Colocando uma senha errada como exemplo
+      if (password === '12345679')
+        return LoginError.WrongPassword;
+
+      setUser(USUARIO_FICTICIO);
+      setAuth(true);
+      return null;
+    }
   }
 
   const logout = () => {

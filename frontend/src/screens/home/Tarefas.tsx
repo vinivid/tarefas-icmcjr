@@ -1,14 +1,102 @@
-import { Text, View } from "react-native"
-import TarefaCard from "../../components/TarefaCard"
+import { Text, View, StyleSheet, Pressable, ScrollView } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
+import TarefaCard from "../../components/TarefaCard";
+import ModalTarefa from "../../components/ModalTarefa";
 
-const desc = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam lobortis malesuada justo, vitae ullamcorper tellus pharetra vel. In luctus, nibh in interdum placerat, orci sapien cursus lorem, sit amet tincidunt leo odio at neque. Sed pellentesque efficitur ante, ut aliquam arcu vestibulum vel. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc blandit tellus in nisi cursus, a facilisis lacus tempus. Sed rutrum a elit sit amet sagittis. Nullam malesuada commodo nunc eget fermentum.';
-const data = new Date(2026, 4, 22);
+type Tarefa = {
+  id: string;
+  titulo: string;
+  desc: string;
+  prazo: Date;
+  finished: boolean;
+};
 
 export default function Tarefas() {
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [listaTarefas, setListaTarefas] = useState<Tarefa[]>([]);
+
+  const adicionarTarefaNaLista = (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => {
+    const partesData = novaTarefa.data.split('/');
+    const dataConvertida = new Date(Number(partesData[2]), Number(partesData[1]) - 1, Number(partesData[0]));
+
+    const tarefaPronta: Tarefa = {
+      id: Math.random().toString(), 
+      titulo: novaTarefa.titulo,
+      desc: novaTarefa.descricao,
+      prazo: dataConvertida,
+      finished: false
+    };
+
+    setListaTarefas([tarefaPronta, ...listaTarefas]);
+  };
+
   return (
-    <View>
-      <Text style={{color: 'red'}}>Tela de tarefas</Text>
-      <TarefaCard titulo="Tarefa de teste" desc={desc} prazo={data} finished={false}></TarefaCard>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Pressable style={styles.botaoMais} onPress={() => setModalVisivel(true)}>
+          <MaterialIcons name="add" size={20} color="#6750A4" />
+        </Pressable>
+      </View>
+      
+      <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent}>      
+        {listaTarefas.map((tarefa) => (
+          <TarefaCard 
+            key={tarefa.id} 
+            titulo={tarefa.titulo} 
+            desc={tarefa.desc} 
+            prazo={tarefa.prazo} 
+            finished={tarefa.finished} 
+          />
+        ))}
+
+        {listaTarefas.length === 0 && (
+          <Text style={styles.textoVazio}>
+            Nenhuma tarefa adicionada ainda.
+          </Text>
+        )}
+      </ScrollView>
+
+      <ModalTarefa 
+        visivel={modalVisivel} 
+        fecharModal={() => setModalVisivel(false)} 
+        onSalvar={adicionarTarefaNaLista} 
+      />
     </View>
-  )
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 30,
+    paddingHorizontal: 20, 
+    backgroundColor: '#F9F7FD',
+  },
+  header: {
+    alignItems: 'flex-end', 
+    marginBottom: 20,
+  },
+  botaoMais: {
+    backgroundColor: 'transparent',
+    borderWidth: 2, 
+    borderColor: '#6750A4', 
+    width: 30,
+    height: 30,
+    borderRadius: 15, 
+    justifyContent: 'center',
+    alignItems: 'center', 
+  },
+  scrollArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 100, 
+    gap: 15,
+  },
+  textoVazio: {
+    textAlign: 'center', 
+    color: 'gray', 
+    marginTop: 20,
+  }
+});

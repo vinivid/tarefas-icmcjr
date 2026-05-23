@@ -1,0 +1,290 @@
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Colors } from '../constants/theme';
+import Botao from './Botao';
+
+type ModalTarefaProps = {
+  visivel: boolean;
+  fecharModal: () => void;
+  onSalvar: (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => void;
+  tarefaParaEditar?: { 
+    titulo: string;
+    descricao: string;
+    data: string;
+    hora: string;
+  };
+};
+
+export default function ModalTarefa({ visivel, fecharModal, onSalvar, tarefaParaEditar }: ModalTarefaProps) {
+  const [titulo, setTitulo] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [data, setData] = useState('');
+  const [hora, setHora] = useState('');
+  
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [mostrarErros, setMostrarErros] = useState(false);
+
+  useEffect(() => {
+    if (tarefaParaEditar) {
+      setTitulo(tarefaParaEditar.titulo);
+      setDescricao(tarefaParaEditar.descricao);
+      setData(tarefaParaEditar.data);
+      setHora(tarefaParaEditar.hora);
+    } else {
+      setTitulo('');
+      setDescricao('');
+      setData('');
+      setHora('');
+    }
+    setMostrarErros(false);
+  }, [tarefaParaEditar, visivel]);
+
+  const aoEscolherData = (event: any, dataSelecionada?: Date) => {
+    setShowDatePicker(false);
+    if (dataSelecionada) {
+      const dia = String(dataSelecionada.getDate()).padStart(2, '0');
+      const mes = String(dataSelecionada.getMonth() + 1).padStart(2, '0');
+      const ano = dataSelecionada.getFullYear();
+      setData(`${dia}/${mes}/${ano}`);
+    }
+  };
+
+  const handleSalvar = () => {
+    if (!titulo.trim() || !descricao.trim() || !data.trim() || !hora.trim()) {
+      setMostrarErros(true);
+      return; 
+    }
+
+    onSalvar({ titulo, descricao, data, hora });
+    fecharModal();
+  };
+
+  return (
+    <Modal visible={visivel} transparent animationType="fade">
+      <View style={styles.overlayEscuro}>
+        <View style={styles.cardBranco}>
+          
+          <View style={styles.cabecalhoModal}>
+            <View style={{ width: 24 }} />
+            <Text style={styles.tituloModal}>
+              {tarefaParaEditar ? 'Editar Tarefa' : 'Adicionar Nova Tarefa'}
+            </Text>
+            <Pressable onPress={fecharModal}>
+              <MaterialIcons name="close" size={24} color={Colors.light.primary} />
+            </Pressable>
+          </View>
+
+          <View style={[styles.caixaInput, mostrarErros && !titulo.trim() && styles.caixaInputErro]}>
+            <Text style={[styles.labelInput, mostrarErros && !titulo.trim() && styles.labelInputErro]}>
+              Título
+            </Text>
+            
+            {mostrarErros && !titulo.trim() && <Text style={styles.textoErro}>*Obrigatório</Text>}
+
+            <TextInput
+              style={styles.textInputArea}
+              value={titulo}
+              onChangeText={setTitulo}
+              placeholder="Título da tarefa"
+              placeholderTextColor="#A0A0A0"
+            />
+            {titulo.length > 0 && (
+              <Pressable onPress={() => setTitulo('')} style={styles.botaoLimpar}>
+                <MaterialIcons name="cancel" size={20} color="#79747E" />
+              </Pressable>
+            )}
+          </View>
+
+          <View style={[styles.caixaInput, styles.caixaInputDescricao, mostrarErros && !descricao.trim() && styles.caixaInputErro]}>
+            <Text style={[styles.labelInput, mostrarErros && !descricao.trim() && styles.labelInputErro]}>
+              Descrição
+            </Text>
+
+            {mostrarErros && !descricao.trim() && <Text style={styles.textoErro}>*Obrigatório</Text>}
+
+            <TextInput
+              style={[styles.textInputArea, styles.textAreaMultilinha]}
+              value={descricao}
+              onChangeText={setDescricao}
+              placeholder="Descrição da tarefa"
+              placeholderTextColor="#A0A0A0"
+              multiline
+              textAlignVertical="top"
+            />
+             {descricao.length > 0 && (
+              <Pressable onPress={() => setDescricao('')} style={styles.botaoLimparTop}>
+                <MaterialIcons name="cancel" size={20} color="#79747E" />
+              </Pressable>
+            )}
+          </View>
+
+          <Text style={styles.textoPrazo}>Prazo</Text>
+
+          <View style={styles.secaoData}>
+            <View style={[styles.caixaInput, mostrarErros && !data.trim() && styles.caixaInputErro]}>
+              <Text style={[styles.labelInput, mostrarErros && !data.trim() && styles.labelInputErro]}>
+                Data
+              </Text>
+
+              {mostrarErros && !data.trim() && <Text style={styles.textoErro}>*Obrigatório</Text>}
+              
+              <Text style={styles.textInputArea}>
+                {data || 'DD/MM/YYYY'}
+              </Text>
+              
+              <Pressable style={styles.botaoCalendario} onPress={() => setShowDatePicker(true)}>
+                <MaterialIcons name="calendar-today" size={22} color={Colors.light.primary} />
+              </Pressable>
+            </View>
+            <Text style={styles.formatoData}>MM/DD/YYYY</Text>
+          </View>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={new Date()}
+              mode="date"
+              display="default"
+              onChange={aoEscolherData}
+            />
+          )}
+
+          <View style={[styles.caixaInput, mostrarErros && !hora.trim() && styles.caixaInputErro]}>
+            <Text style={[styles.labelInput, mostrarErros && !hora.trim() && styles.labelInputErro]}>
+              Hora
+            </Text>
+
+            {mostrarErros && !hora.trim() && <Text style={styles.textoErro}>*Obrigatório</Text>}
+
+            <TextInput
+              style={styles.textInputArea}
+              value={hora}
+              onChangeText={setHora}
+              placeholder="Horário de entrega"
+              placeholderTextColor="#A0A0A0"
+            />
+            {hora.length > 0 && (
+              <Pressable onPress={() => setHora('')} style={styles.botaoLimpar}>
+                <MaterialIcons name="cancel" size={20} color="#79747E" />
+              </Pressable>
+            )}
+          </View>
+
+          <View style={styles.wrapperBotao}>
+            <Botao conteudo="Salvar" onPress={handleSalvar} />
+          </View>
+
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlayEscuro: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardBranco: {
+    backgroundColor: 'white',
+    width: '88%',
+    padding: 20,
+    borderRadius: 24,
+    gap: 12,
+  },
+  cabecalhoModal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  tituloModal: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.light.primary,
+  },
+  caixaInput: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#79747E', 
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    minHeight: 55, 
+    position: 'relative',
+  },
+  labelInput: {
+    position: 'absolute',
+    top: -10,
+    left: 10,
+    backgroundColor: 'white',
+    paddingHorizontal: 5,
+    fontSize: 12,
+    color: '#79747E',
+  },
+  textInputArea: {
+    flex: 1, 
+    fontSize: 16,
+    color: '#49454F',
+    paddingVertical: 10, 
+  },
+  botaoLimpar: {
+    padding: 5,
+  },
+  caixaInputErro: {
+    borderColor: '#B3261E',
+  },
+  labelInputErro: {
+    color: '#B3261E',
+  },
+  textoErro: {
+    position: 'absolute',
+    top: -10,
+    right: 10, 
+    backgroundColor: 'white',
+    paddingHorizontal: 5,
+    fontSize: 12,
+    color: '#B3261E',
+  },
+  caixaInputDescricao: {
+    minHeight: 100, 
+    alignItems: 'flex-start', 
+    paddingTop: 5,
+  },
+  textAreaMultilinha: {
+    minHeight: 80,
+  },
+  botaoLimparTop: {
+    padding: 5,
+    marginTop: 5, 
+  },
+  textoPrazo: {
+    color: Colors.light.primary,
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 5,
+  },
+  secaoData: {
+    marginBottom: 5,
+  },
+  botaoCalendario: {
+    backgroundColor: '#F3F0F9',
+    padding: 6,
+    borderRadius: 8,
+  },
+  formatoData: {
+    fontSize: 10,
+    color: '#79747E',
+    marginTop: 2,
+    marginLeft: 4,
+  },
+  wrapperBotao: {
+    alignItems: 'center',
+    marginTop: 15,
+  }
+});

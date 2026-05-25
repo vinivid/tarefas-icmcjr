@@ -7,14 +7,16 @@ type TarefaProps = {
     titulo: string,
     desc: string,
     prazo: Date,
-    finished: boolean
+    finished: boolean,
+    desktop: boolean
 }
 
 export default function TarefaCard({ 
     titulo,
     desc,
     prazo,
-    finished
+    finished,
+    desktop
 } : TarefaProps) {
 
     const [terminada, setTerminada] = useState(finished);
@@ -24,7 +26,7 @@ export default function TarefaCard({
 
     return (
         <View
-            style={styles.card}
+            style={[styles.card, desktop && styles.desktop]}
         >
             <Text
                 style={styles.titulo}
@@ -55,9 +57,33 @@ export default function TarefaCard({
             </View>
 
             {expandida && (
-                <Text style={styles.desc}>
-                {desc}
-                </Text>
+                <View>
+                    <Text style={styles.desc}>
+                    {desc}
+                    </Text>
+
+                    <View style={styles.flex}>
+
+                        <View style={styles.flexdata}>
+                            <MaterialIcons name="schedule" size={24} color={Colors.light.primary}/>
+                            <Text style={styles.data}>
+                                {prazo.toLocaleTimeString("pt-br")}
+                            </Text>
+                        </View>
+
+                        <View style={styles.flexreverse}>
+                            <Pressable onPress={() => alert("ABRIR EDIÇÃO DE TAREFA")}>
+                                <MaterialIcons name="edit" size={30} color={Colors.light.primary}/>
+                            </Pressable>
+                            
+                            <Pressable onPress={() => alert("CONFIRMAR EXCLUSÃO DE TAREFA")}>
+                                <MaterialIcons name="delete" size={30} color={Colors.light.error}/>
+                            </Pressable>
+                        </View>
+
+                    </View>
+                </View>
+                
             )}
 
             <Pressable onPress={() => setExpandida(prev => !prev)}>
@@ -92,6 +118,12 @@ const styles = StyleSheet.create({
         gap: 12
     },
 
+    desktop : {
+        width: '30%',
+        marginHorizontal: 20,
+        alignSelf: 'flex-start'
+    },
+
     titulo : {
         color: Colors.light.primary,
         fontWeight: 800,
@@ -104,6 +136,14 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between', 
         alignItems: 'center'
     },
+
+    flexreverse : {
+        flexDirection: 'row',
+        justifyContent: 'flex-end', 
+        alignItems: 'center',
+        gap: 15
+    },
+
 
     flexdata : {
         flexDirection: 'row',
@@ -127,8 +167,8 @@ const styles = StyleSheet.create({
     },
 
     atraso : {
-        color: 'red',
-        borderColor: 'red',
+        color: Colors.light.error,
+        borderColor: Colors.light.error,
         fontWeight: 600,
         borderWidth: 2,
         borderRadius: 20,
@@ -150,6 +190,7 @@ const styles = StyleSheet.create({
     },
 
     desc : {
-        color: 'gray'
+        color: Colors.light.onSurfaceVariant,
+        textAlign: 'justify'
     }
 })

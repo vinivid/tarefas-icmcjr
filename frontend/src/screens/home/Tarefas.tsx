@@ -1,6 +1,6 @@
-import { Text, View } from "react-native"
-import TarefaCard from "../../components/TarefaCard"
+import { Text, useWindowDimensions, View, StyleSheet } from "react-native"
 import ListaTarefas from "@/src/components/ListaTarefas";
+import { Colors } from "@/src/constants/theme";
 
 const desc = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam lobortis malesuada justo, vitae ullamcorper tellus pharetra vel. In luctus, nibh in interdum placerat, orci sapien cursus lorem, sit amet tincidunt leo odio at neque. Sed pellentesque efficitur ante, ut aliquam arcu vestibulum vel. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc blandit tellus in nisi cursus, a facilisis lacus tempus. Sed rutrum a elit sit amet sagittis. Nullam malesuada commodo nunc eget fermentum.';
 const data = new Date(2026, 4, 22);
@@ -44,10 +44,45 @@ const tarefas = [
 ]
 
 export default function Tarefas() {
+
+  const { width } = useWindowDimensions();
+  const desktop = width >= 900;
+
   return (
-    <View>
-      <Text style={{color: 'red'}}>Tela de tarefas</Text>
-      <ListaTarefas tarefas={tarefas}/>
+    <View style={styles.container}>
+
+      {desktop && (
+        <View>
+          <Text style={styles.titulo}>
+            Olá, nome! 👋
+          </Text>
+          <Text style={styles.subtitulo}>
+            Vamos organizar seu dia!
+          </Text>
+        </View>
+      )}
+
+      <ListaTarefas tarefas={tarefas} desktop={desktop}/>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+
+  titulo : {
+    color: Colors.light.primary,
+    fontWeight: 800,
+    fontSize: 40,
+    marginLeft: 80
+  },
+  
+  subtitulo : {
+    color: Colors.light.primaryTint,
+    fontWeight: 800,
+    fontSize: 24,
+    marginLeft: 80
+  }
+})

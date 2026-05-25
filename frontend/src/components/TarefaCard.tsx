@@ -20,6 +20,8 @@ export default function TarefaCard({
     const [terminada, setTerminada] = useState(finished);
     const [expandida, setExpandida] = useState(false);
 
+    const atrasada = new Date() > prazo;
+
     return (
         <View
             style={styles.card}
@@ -39,9 +41,16 @@ export default function TarefaCard({
                 </View>
 
                 <Pressable onPress={() => setTerminada(prev => !prev)}>
-                    <Text style={ terminada ? styles.finalizado : styles.andamento }>
-                        { terminada ? "Finalizado" : "Em andamento" }
-                    </Text>
+                    { terminada ? (
+                        <Text style={ styles.finalizado }>
+                            { "Finalizado" }
+                        </Text>
+                    ) : (
+                        <Text style={ atrasada ? styles.atraso : styles.andamento }>
+                            { atrasada ? "Atrasada" : "Em andamento" }
+                        </Text>
+                    )}
+                    
                 </Pressable>
             </View>
 
@@ -112,6 +121,15 @@ const styles = StyleSheet.create({
         color: 'green',
         fontWeight: 600,
         borderColor: 'green',
+        borderWidth: 2,
+        borderRadius: 20,
+        paddingHorizontal: 5
+    },
+
+    atraso : {
+        color: 'red',
+        borderColor: 'red',
+        fontWeight: 600,
         borderWidth: 2,
         borderRadius: 20,
         paddingHorizontal: 5

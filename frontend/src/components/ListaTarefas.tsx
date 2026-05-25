@@ -5,7 +5,7 @@ import { useState } from "react";
 import TarefaCard from "./TarefaCard";
 
 type Tarefa = {
-    id: number,
+    id: string,
     titulo: string,
     desc: string,
     prazo: Date,

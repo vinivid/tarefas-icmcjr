@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end', 
     marginBottom: 20,
   },
+  
   botaoMais: {
     backgroundColor: 'transparent',
     borderWidth: 2, 
@@ -147,13 +148,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center', 
   },
-  scrollArea: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 100, 
-    gap: 15,
-  },
+
   textoVazio: {
     textAlign: 'center', 
     color: 'gray', 

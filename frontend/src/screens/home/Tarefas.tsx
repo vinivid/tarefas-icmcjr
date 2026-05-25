@@ -3,7 +3,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Colors } from "@/src/constants/theme";
 import ListaTarefas from "@/src/components/ListaTarefas";
-import TarefaCard from "../../components/TarefaCard";
 import ModalTarefa from "../../components/ModalTarefa";
 
 type Tarefa = {
@@ -14,7 +13,7 @@ type Tarefa = {
   finished: boolean;
 };
 
-const tarefas = [
+const tarefasTeste = [
   {
     id: '1',
     titulo: "Tarefa de teste 1",
@@ -57,7 +56,7 @@ export default function Tarefas() {
   const desktop = width >= 900;       
  
   const [modalVisivel, setModalVisivel] = useState(false);
-  const [listaTarefas, setListaTarefas] = useState<Tarefa[]>(tarefas);
+  const [listaTarefas, setListaTarefas] = useState<Tarefa[]>(tarefasTeste);
 
   const adicionarTarefaNaLista = (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => {
     const partesData = novaTarefa.data.split('/');
@@ -94,13 +93,13 @@ export default function Tarefas() {
         </Pressable>
       </View>
       
-      <ListaTarefas tarefas={tarefas} desktop={desktop}/>
-
       {listaTarefas.length === 0 && (
         <Text style={styles.textoVazio}>
           Nenhuma tarefa adicionada ainda.
         </Text>
       )}
+
+      <ListaTarefas tarefas={listaTarefas} desktop={desktop}/>
 
       <ModalTarefa 
         visivel={modalVisivel} 
@@ -137,7 +136,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end', 
     marginBottom: 20,
   },
-  
+
   botaoMais: {
     backgroundColor: 'transparent',
     borderWidth: 2, 

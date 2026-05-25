@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../constants/theme";
 import { useState } from "react";
@@ -13,21 +13,43 @@ type Tarefa = {
 }
 
 type ListaTarefasProps = {
-    tarefas : Tarefa[]
+    tarefas : Tarefa[],
+    desktop : boolean
 }
 
 export default function ListaTarefas({
-    tarefas
+    tarefas,
+    desktop
 } : ListaTarefasProps) {
+
+    const numColunas = desktop ? 3 : 1;
+
     return (
-        <View>
-            {tarefas.map((tarefa) => ( 
+        <FlatList
+            key={numColunas}
+            numColumns={numColunas}
+            contentContainerStyle={[styles.lista, desktop && styles.listadesktop]}
+            data={tarefas}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) =>
                 <TarefaCard 
-                    titulo={tarefa.titulo}
-                    desc={tarefa.desc}
-                    prazo={tarefa.prazo}
-                    finished={tarefa.finished}/>
-            ))}
-        </View>
+                    titulo={item.titulo}
+                    desc={item.desc}
+                    prazo={item.prazo}
+                    finished={item.finished}
+                    desktop={desktop}
+                />}
+            />
     )
 }
+
+const styles = StyleSheet.create({
+    lista : {
+        gap: 30,
+        paddingVertical: 20,
+    },
+
+    listadesktop : {
+        paddingHorizontal: 60
+    }
+})

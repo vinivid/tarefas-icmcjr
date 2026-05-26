@@ -33,10 +33,13 @@ Arquivos estáticos usados pelo app, como imagens.
 Componentes reutilizáveis de interface:
 
 - `Botao.tsx`: botão padrão do aplicativo.
+- `Filtro.tsx`: botão de selecionar o filtro para listagem de tarefas (Finalizado, Em andamento, Atrasado).
 - `LineInput.tsx`: campo de texto base com label, foco, erro e ícones.
+- `ListaTarefas.tsx`: componente com a lista de tarefas responsiva.
 - `MaskedLineInput.tsx`: variação de input com máscara.
 - `TarefaCard.tsx`: card para exibição de tarefas.
 - `ModalTarefa.tsx`: modal para criação e edição de tarefas.
+- `ModalConfirmarExclusao.tsx`: modal para confirmar a exclusão de uma tarefa
 - `auth/`: componentes específicos das telas de autenticação, como `UserFieldInput.tsx` e `MaskedUserFieldInput.tsx`.
 
 ### `src/constants/`

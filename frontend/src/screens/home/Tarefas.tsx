@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   
   subtitulo : {
-    color: Colors.light.primaryTint,
+    color: Colors.light.primaryMedium,
     fontWeight: 800,
     fontSize: 24,
     marginLeft: 10

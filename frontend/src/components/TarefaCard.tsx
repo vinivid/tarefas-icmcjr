@@ -138,16 +138,14 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 10,
 
-        width: '90%',
+        width: '96%',
         paddingVertical: 10,
         paddingHorizontal: 20,
         gap: 12
     },
 
     desktop : {
-        width: '30%',
-        marginHorizontal: 20,
-        alignSelf: 'flex-start'
+        width: '100%'
     },
 
     titulo : {
@@ -160,7 +158,8 @@ const styles = StyleSheet.create({
     flex : {
         flexDirection: 'row',
         justifyContent: 'space-between', 
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap'
     },
 
     flexreverse : {

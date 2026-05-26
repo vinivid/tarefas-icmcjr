@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, ScrollView, View, StyleSheet } from "react-native";
 import TarefaCard from "./TarefaCard";
 
 type Tarefa = {
@@ -25,13 +25,39 @@ export default function ListaTarefas({
     onExcluir
 } : ListaTarefasProps) {
 
-    const numColunas = desktop ? 3 : 1;
+    const colunas : Tarefa[][] = [[], [], []];
 
-    return (
+    tarefas.forEach((tarefa, index) => {
+        colunas[index % 3].push(tarefa)
+    })
+
+    return desktop ? (
+        <ScrollView>
+            <View style={styles.container}>
+                { colunas.map((coluna) => 
+                    (<View style={styles.coluna} key={colunas.indexOf(coluna)}>
+                        {coluna.map((item) => 
+                            <TarefaCard
+                                key={item.id}
+                                id={item.id}
+                                titulo={item.titulo}
+                                desc={item.desc}
+                                prazo={item.prazo}
+                                finished={item.finished}
+                                desktop={desktop}
+                                onToggle={onToggle}
+                                onEditar={onEditar}
+                                onExcluir={onExcluir}
+                            />)}
+                    </View>)
+                ) }
+            </View>
+        </ScrollView>
+    ) : (
         <FlatList
-            key={numColunas}
-            numColumns={numColunas}
-            contentContainerStyle={[styles.lista, desktop && styles.listadesktop]}
+            key={1}
+            contentContainerStyle={styles.lista}
+            showsVerticalScrollIndicator={false}
             data={tarefas}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) =>
@@ -52,11 +78,20 @@ export default function ListaTarefas({
 
 const styles = StyleSheet.create({
     lista : {
-        gap: 30,
+        gap: 20,
         paddingVertical: 20,
+        overflow: 'visible'
     },
 
-    listadesktop : {
-        marginLeft: 60
+    coluna : {
+        flex: 1,
+        gap: 20,
+        paddingHorizontal: 10
+    },
+
+    container : {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        paddingVertical: 20
     }
 })

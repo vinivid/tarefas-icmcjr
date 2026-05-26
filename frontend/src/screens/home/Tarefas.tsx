@@ -170,72 +170,82 @@ export default function Tarefas() {
   })
 
   return (
-    <View style={styles.container}>
-      
-      {desktop && (
-        <View>
-          <Text style={styles.titulo}>
-            Olá, nome! 👋
-          </Text>
-          <Text style={styles.subtitulo}>
-            Vamos organizar seu dia!
-          </Text>
+    <View style={styles.body}>
+      <View style={styles.container}>
+        
+        {desktop && (
+          <View>
+            <Text style={styles.titulo}>
+              Olá, nome! 👋
+            </Text>
+            <Text style={styles.subtitulo}>
+              Vamos organizar seu dia!
+            </Text>
+          </View>
+        )}
+        
+        <View style={[styles.header, desktop && styles.headerDesktop]}>
+          <Filtro onFiltroChange={setFiltro}/>
+
+          <Pressable style={styles.botaoMais} onPress={abrirModalCriacao}>
+            <MaterialIcons name="add" size={20} color="#6750A4" />
+          </Pressable>
         </View>
-      )}
-      
-      <View style={[styles.header, desktop && styles.headerDesktop]}>
-        <Filtro onFiltroChange={setFiltro}/>
+        
+        {listaTarefas.length === 0 && (
+          <Text style={styles.textoVazio}>
+            Nenhuma tarefa adicionada ainda.
+          </Text>
+        )}
 
-        <Pressable style={styles.botaoMais} onPress={abrirModalCriacao}>
-          <MaterialIcons name="add" size={20} color="#6750A4" />
-        </Pressable>
+        <ListaTarefas
+          tarefas={tarefasFiltradas}
+          desktop={desktop}
+          onToggle={toggleFinalizado}
+          onEditar={abrirModalEdicao}
+          onExcluir={excluirTarefa}
+        />
+
+        <ModalTarefa 
+          visivel={modalVisivel} 
+          fecharModal={fecharModal} 
+          onSalvar={salvarTarefa}
+          desktop={desktop}
+          tarefaParaEditar={tarefaParaEditar}
+        />
       </View>
-      
-      {listaTarefas.length === 0 && (
-        <Text style={styles.textoVazio}>
-          Nenhuma tarefa adicionada ainda.
-        </Text>
-      )}
-
-      <ListaTarefas
-        tarefas={tarefasFiltradas}
-        desktop={desktop}
-        onToggle={toggleFinalizado}
-        onEditar={abrirModalEdicao}
-        onExcluir={excluirTarefa}
-      />
-
-      <ModalTarefa 
-        visivel={modalVisivel} 
-        fecharModal={fecharModal} 
-        onSalvar={salvarTarefa}
-        desktop={desktop}
-        tarefaParaEditar={tarefaParaEditar}
-      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  body : {
+    backgroundColor: Colors.light.background,
+    height: '100%',
+    overflow: 'visible'
+  },
+
   container: {
     flex: 1,
     paddingTop: 30,
-    paddingHorizontal: 20, 
-    backgroundColor: '#F9F7FD',
+    width: '90%',
+    alignSelf: 'center', 
+    backgroundColor: Colors.light.background,
+    overflow: 'visible'
   },
 
   titulo : {
     color: Colors.light.primary,
     fontWeight: 800,
     fontSize: 40,
-    marginLeft: 80
+    marginLeft: 10
   },
   
   subtitulo : {
     color: Colors.light.primaryTint,
     fontWeight: 800,
     fontSize: 24,
-    marginLeft: 80
+    marginLeft: 10
   },
   
   header: {
@@ -248,7 +258,7 @@ const styles = StyleSheet.create({
   },
 
   headerDesktop: {
-    marginHorizontal: 80,
+    marginHorizontal: 10,
     marginTop: 60,
     marginBottom: 10
   },

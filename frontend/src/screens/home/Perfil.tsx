@@ -17,68 +17,6 @@ import useEmailStr from "@/src/hooks/auth/useEmailStr";
 import useCpfStr from "@/src/hooks/auth/useCpfStr";
 import useDateStr from "@/src/hooks/auth/useDateStr";
 
-function mascaraCpf(valor: string) {
-  const digits = valor.replace(/\D/g, "").slice(0, 11)
-  return digits
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-}
-
-function mascaraData(valor: string) {
-  const digits = valor.replace(/\D/g, "").slice(0, 8)
-  return digits
-    .replace(/(\d{2})(\d)/, "$1/$2")
-    .replace(/(\d{2})(\d)/, "$1/$2")
-}
-
-
-function validarNome(nome: string) {
-  if (!nome.trim()) return "Nome é obrigatório."
-  if (nome.trim().length < 3) return "Nome deve ter ao menos 3 caracteres."
-  return ""
-}
-
-function validarData(data: string) {
-  if (!data.trim()) return "Data é obrigatória."
-  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data)) return "Use o formato DD/MM/AAAA."
-
-  const [dia, mes, ano] = data.split("/").map(Number)
-  const anoAtual = new Date().getFullYear()
-
-  const diasNoMes = new Date(ano, mes, 0).getDate()
-  if (
-    ano < 1900 || ano > anoAtual ||
-    mes < 1 || mes > 12 ||
-    dia < 1 || dia > diasNoMes
-  ) return "Insira uma data válida."
-
-  return ""
-}
-
-function validarEmail(email: string) {
-  if (!email.trim()) return "E-mail é obrigatório."
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "E-mail inválido."
-  return ""
-}
-
-function validarCpf(cpf: string) {
-  if (!cpf.trim()) return "CPF é obrigatório."
-  if (cpf.replace(/\D/g, "").length !== 11) return "CPF deve ter 11 dígitos."
-  return ""
-}
-
-function validarSenha(senha: string) {
-  if (!senha) return "Nova senha é obrigatória."
-  if (senha.length < 6) return "Senha deve ter ao menos 6 caracteres."
-  return ""
-}
-
-function validarConfirmacao(senha: string, confirmacao: string) {
-  if (!confirmacao) return "Confirme a senha."
-  if (senha !== confirmacao) return "As senhas não coincidem."
-  return ""
-}
 
 export default function Perfil() {
   const { user, logout } = useAuth()
@@ -94,6 +32,9 @@ export default function Perfil() {
   const [ passwordRepeat, setPasswordRepeat ] = useState('');
   const [ passwordDiff, setPasswordDiff ] = useState(false);
   
+  const [erroCampos, setErroCampos] = useState(false);
+  const [erroSenha, setErroSenha] = useState(false);
+
   const [textoExcluir, setTextoExcluir] = useState("")
 
   function handleCancelarEdicao() {
@@ -104,14 +45,25 @@ export default function Perfil() {
     setPasswordStr("");
     setPasswordRepeat("");
     setEditando(false);
+    setErroCampos(false);
+    setErroSenha(false);
   }
 
   function handleConfirmarAlteracoes() {
-    if ((username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== ''))
-      return;
-
-    setEditando(false)
+  if (!username.ok || !date.ok || !email.ok || !cpf.ok) {
+    setErroCampos(true);
+    return;
   }
+  setErroCampos(false);
+
+  if (!password.ok || passwordDiff || passwordRepeat === '') {
+    setErroSenha(true);
+    return;
+  }
+  setErroSenha(false);
+
+  setEditando(false);
+}
 
   function handleExcluirConta() {
     if (textoExcluir !== "Excluir") return
@@ -232,20 +184,27 @@ export default function Perfil() {
         )}
 
         <View style={styles.botoes}>
-          {!editando ? (
-            <>
-            <Botao conteudo="Editar perfil" onPress={() => setEditando(true)} />
-            <Botao conteudo="Sair" onPress={() => handleLogout()} />
-            </>
-          ) : (
-            <>
+  {!editando ? (
+    <>
+      <Botao conteudo="Editar perfil" onPress={() => setEditando(true)} />
+      <Botao conteudo="Sair" onPress={handleLogout} />
+    </>
+  ) : (
+    <>
+      <View style={styles.legendContainer}>
+              {(erroCampos || erroSenha) && (
+                <Text style={styles.legendTextError}>
+                  Corrija os campos inválidos antes de salvar.
+                </Text>
+              )}
               <Botao conteudo="Confirmar alterações" onPress={handleConfirmarAlteracoes} />
-              <Pressable style={styles.botaoExcluir} onPress={() => setModalVisivel(true)}>
-                <Text style={styles.botaoExcluirTexto}>Excluir conta</Text>
-              </Pressable>
-            </>
-          )}
-        </View>
+            </View>
+            <Pressable style={styles.botaoExcluir} onPress={() => setModalVisivel(true)}>
+              <Text style={styles.botaoExcluirTexto}>Excluir conta</Text>
+            </Pressable>
+          </>
+        )}
+      </View>
 
       </ScrollView>
 
@@ -416,4 +375,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 16,
   },
+  legendContainer: {
+  rowGap: 6,
+  alignItems: "center",
+},
+legendTextError: {
+  color: Colors.light.error,
+  fontFamily: "RobotoMono_400Regular",
+  fontSize: 12,
+  marginLeft: 5,
+},
 })

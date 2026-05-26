@@ -36,8 +36,7 @@ export type Username = string;
  * todas as invariantes.
  */
 export function createUsername(name : string) : Result<Username, UserInputError> {
-  // Nome vazio ou somente espaços
-  if (/\s+/.test(name) || name === '')
+  if (name.trim() === '')
     return { ok: false, error : UserInputError.Empty };
 
   // Este regex verifica se o nome do usuário contem caracteres de URL,
@@ -46,7 +45,7 @@ export function createUsername(name : string) : Result<Username, UserInputError>
   if (regex.test(name))
     return { ok: false, error : UserInputError.InvalidChars };
 
-  if (name.length > 15)
+  if (name.length > 100)
     return { ok: false, error : UserInputError.Maxlen };
 
   return { ok: true, value: name };

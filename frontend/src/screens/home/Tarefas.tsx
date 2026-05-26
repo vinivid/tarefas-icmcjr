@@ -102,6 +102,17 @@ export default function Tarefas() {
     );
   };
 
+  const toggleFinalizado = (id: string) => {
+    setListaTarefas((tarefasAtuais) =>
+      tarefasAtuais.map((tarefa) => 
+        tarefa.id === id
+          ? {
+            ...tarefa,
+            finished: !(tarefa.finished)
+          }
+          : tarefa ))
+  }
+
   const salvarTarefa = (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => {
     const dataConvertida = criarDataPrazo(novaTarefa.data, novaTarefa.hora);
 
@@ -145,6 +156,19 @@ export default function Tarefas() {
       }
     : undefined;
 
+  const tarefasFiltradas = listaTarefas.filter((tarefa) => {
+    if (filtro === "todos")
+      return true;
+    if (filtro === "finalizado" && tarefa.finished === true)
+      return true;
+    if (filtro === "atrasado" && new Date() > tarefa.prazo && !tarefa.finished)
+      return true;
+    if (filtro === "andamento" && !tarefa.finished && new Date() <= tarefa.prazo)
+      return true;
+
+    return false;
+  })
+
   return (
     <View style={styles.container}>
       
@@ -174,8 +198,9 @@ export default function Tarefas() {
       )}
 
       <ListaTarefas
-        tarefas={listaTarefas}
+        tarefas={tarefasFiltradas}
         desktop={desktop}
+        onToggle={toggleFinalizado}
         onEditar={abrirModalEdicao}
         onExcluir={excluirTarefa}
       />

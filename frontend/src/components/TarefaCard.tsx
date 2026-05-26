@@ -11,6 +11,7 @@ type TarefaProps = {
     prazo: Date,
     finished: boolean,
     desktop: boolean,
+    onToggle: (id: string) => void,
     onEditar: (tarefa: {
         id: string;
         titulo: string;
@@ -28,11 +29,11 @@ export default function TarefaCard({
     prazo,
     finished,
     desktop,
+    onToggle,
     onEditar,
     onExcluir
 } : TarefaProps) {
 
-    const [terminada, setTerminada] = useState(finished);
     const [expandida, setExpandida] = useState(false);
     const [modalExcluirVisivel, setModalExcluirVisivel] = useState(false);
 
@@ -61,8 +62,8 @@ export default function TarefaCard({
                     </Text>
                 </View>
 
-                <Pressable onPress={() => setTerminada(prev => !prev)}>
-                    { terminada ? (
+                <Pressable onPress={() => onToggle(id)}>
+                    { finished ? (
                         <Text style={ styles.finalizado }>
                             { "Finalizado" }
                         </Text>
@@ -91,7 +92,7 @@ export default function TarefaCard({
                         </View>
 
                         <View style={styles.flexreverse}>
-                            <Pressable onPress={() => onEditar({ id, titulo, desc, prazo, finished: terminada })}>
+                            <Pressable onPress={() => onEditar({ id, titulo, desc, prazo, finished })}>
                                 <MaterialIcons name="edit" size={30} color={Colors.light.primary}/>
                             </Pressable>
                             

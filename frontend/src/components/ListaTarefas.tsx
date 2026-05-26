@@ -12,6 +12,7 @@ type Tarefa = {
 type ListaTarefasProps = {
     tarefas : Tarefa[],
     desktop : boolean,
+    onToggle: (id: string) => void,
     onEditar: (tarefa: Tarefa) => void,
     onExcluir: (id: string) => void
 }
@@ -19,6 +20,7 @@ type ListaTarefasProps = {
 export default function ListaTarefas({
     tarefas,
     desktop,
+    onToggle,
     onEditar,
     onExcluir
 } : ListaTarefasProps) {
@@ -40,6 +42,7 @@ export default function ListaTarefas({
                     prazo={item.prazo}
                     finished={item.finished}
                     desktop={desktop}
+                    onToggle={onToggle}
                     onEditar={onEditar}
                     onExcluir={onExcluir}
                 />}

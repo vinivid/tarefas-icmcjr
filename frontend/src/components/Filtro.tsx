@@ -27,6 +27,13 @@ export default function Filtro({
 
             {aberto && (
                 <View style={styles.dropdown}>
+
+                    <Pressable onPress={() => onFiltroChange("todos")}>
+                        <Text style={styles.todos}>
+                        Todos
+                        </Text>
+                    </Pressable>
+
                     <Pressable onPress={() => onFiltroChange("atrasado")}>
                         <Text style={styles.atraso}>
                         Atrasado
@@ -44,6 +51,7 @@ export default function Filtro({
                         Finalizado
                         </Text>
                     </Pressable>
+
                 </View>
             )}
         </View>
@@ -71,8 +79,8 @@ const styles = StyleSheet.create({
 
     dropdown : {
         backgroundColor: 'white',
-        paddingVertical: 30,
-        paddingHorizontal: 5,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         borderWidth: 2,
         borderColor: Colors.light.primary,
         borderRadius: 20,
@@ -81,12 +89,22 @@ const styles = StyleSheet.create({
         top: 35,
         left: 0,
         
-        minWidth: 130,
+        minWidth: 140,
         marginVertical: 5,
         gap: 5,
 
         zIndex: 100,
         elevation: 100
+    },
+
+    todos : {
+        color: Colors.light.onSurface,
+        fontWeight: 600,
+        borderColor: Colors.light.onSurface,
+        borderWidth: 2,
+        borderRadius: 20,
+        paddingHorizontal: 5,
+        textAlign: 'center'
     },
 
     finalizado : {

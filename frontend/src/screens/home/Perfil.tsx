@@ -119,7 +119,11 @@ export default function Perfil() {
     setModalVisivel(false);
   }
 
-  const SENHA_PLACEHOLDER = "*".repeat((user?.senha?.length ?? 0) > 0 ? user!.senha!.length : 10)
+  function handleLogout() {
+    logout();
+  }
+
+  const SENHA_PLACEHOLDER = "●".repeat((user?.senha?.length ?? 0) > 0 ? user!.senha!.length : 10)
 
   return (
     <TouchableWithoutFeedback> 
@@ -135,6 +139,8 @@ export default function Perfil() {
       )}
 
       <ScrollView contentContainerStyle={styles.container}>
+
+        <Text style={styles.titulo}>Sua Conta</Text>
 
         <UserFieldInput 
           label="Nome completo" 
@@ -227,7 +233,10 @@ export default function Perfil() {
 
         <View style={styles.botoes}>
           {!editando ? (
+            <>
             <Botao conteudo="Editar perfil" onPress={() => setEditando(true)} />
+            <Botao conteudo="Sair" onPress={() => handleLogout()} />
+            </>
           ) : (
             <>
               <Botao conteudo="Confirmar alterações" onPress={handleConfirmarAlteracoes} />
@@ -260,7 +269,7 @@ export default function Perfil() {
                 value={textoExcluir}
                 onChangeText={setTextoExcluir}
                 placeholder="Excluir"
-                style={styles.input}
+                style={styles.inputExcluir}
               />
             </View>
 
@@ -302,6 +311,16 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 48,
     gap: 16,
+    width: "100%",
+    maxWidth: 720, 
+    alignSelf: "center",
+  },
+  titulo : {
+    color: Colors.light.primary,
+    fontWeight: 800,
+    fontSize: 32,
+    marginBottom: 10,
+    alignSelf: "center",
   },
   botoes: {
     marginTop: 8,
@@ -379,7 +398,7 @@ const styles = StyleSheet.create({
   botaoDesabilitado: {
     opacity: 0.3,
   },
-  input: {
+  inputExcluir: {
     marginHorizontal: 40, 
     marginVertical: 10,
     height: 40,

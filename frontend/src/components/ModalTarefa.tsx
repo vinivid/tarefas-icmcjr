@@ -9,6 +9,7 @@ type ModalTarefaProps = {
   visivel: boolean;
   fecharModal: () => void;
   onSalvar: (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => void;
+  desktop?: boolean;
   tarefaParaEditar?: { 
     titulo: string;
     descricao: string;
@@ -17,7 +18,7 @@ type ModalTarefaProps = {
   };
 };
 
-export default function ModalTarefa({ visivel, fecharModal, onSalvar, tarefaParaEditar }: ModalTarefaProps) {
+export default function ModalTarefa({ visivel, fecharModal, onSalvar, desktop, tarefaParaEditar }: ModalTarefaProps) {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [data, setData] = useState('');
@@ -64,7 +65,7 @@ export default function ModalTarefa({ visivel, fecharModal, onSalvar, tarefaPara
   return (
     <Modal visible={visivel} transparent animationType="fade">
       <View style={styles.overlayEscuro}>
-        <View style={styles.cardBranco}>
+        <View style={[styles.cardBranco, desktop && styles.cardBrancoDesktop]}>
           
           <View style={styles.cabecalhoModal}>
             <View style={{ width: 24 }} />
@@ -194,6 +195,9 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 24,
     gap: 12,
+  },
+  cardBrancoDesktop: {
+    maxWidth: 600,
   },
   cabecalhoModal: {
     flexDirection: 'row',

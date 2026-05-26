@@ -2,27 +2,46 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../constants/theme";
 import { useState } from "react";
+import ModalConfirmarExclusao from "./ModalConfirmarExclusao";
 
 type TarefaProps = {
+    id: string,
     titulo: string,
     desc: string,
     prazo: Date,
     finished: boolean,
-    desktop: boolean
+    desktop: boolean,
+    onEditar: (tarefa: {
+        id: string;
+        titulo: string;
+        desc: string;
+        prazo: Date;
+        finished: boolean;
+    }) => void,
+    onExcluir: (id: string) => void
 }
 
 export default function TarefaCard({ 
+    id,
     titulo,
     desc,
     prazo,
     finished,
-    desktop
+    desktop,
+    onEditar,
+    onExcluir
 } : TarefaProps) {
 
     const [terminada, setTerminada] = useState(finished);
     const [expandida, setExpandida] = useState(false);
+    const [modalExcluirVisivel, setModalExcluirVisivel] = useState(false);
 
     const atrasada = new Date() > prazo;
+
+    const confirmarExclusao = () => {
+        setModalExcluirVisivel(false);
+        onExcluir(id);
+    };
 
     return (
         <View
@@ -72,11 +91,11 @@ export default function TarefaCard({
                         </View>
 
                         <View style={styles.flexreverse}>
-                            <Pressable onPress={() => alert("ABRIR EDIÇÃO DE TAREFA")}>
+                            <Pressable onPress={() => onEditar({ id, titulo, desc, prazo, finished: terminada })}>
                                 <MaterialIcons name="edit" size={30} color={Colors.light.primary}/>
                             </Pressable>
                             
-                            <Pressable onPress={() => alert("CONFIRMAR EXCLUSÃO DE TAREFA")}>
+                            <Pressable onPress={() => setModalExcluirVisivel(true)}>
                                 <MaterialIcons name="delete" size={30} color={Colors.light.error}/>
                             </Pressable>
                         </View>
@@ -93,6 +112,12 @@ export default function TarefaCard({
                     style={styles.mais}
                 />
             </Pressable>
+
+            <ModalConfirmarExclusao
+                visivel={modalExcluirVisivel}
+                onCancelar={() => setModalExcluirVisivel(false)}
+                onConfirmar={confirmarExclusao}
+            />
         </View>
     )
 }

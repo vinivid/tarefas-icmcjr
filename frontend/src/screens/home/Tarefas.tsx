@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Pressable, useWindowDimensions, ScrollView } from "react-native";
+import { Text, View, StyleSheet, Pressable, useWindowDimensions } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Colors } from "@/src/constants/theme";
@@ -57,10 +57,61 @@ export default function Tarefas() {
  
   const [modalVisivel, setModalVisivel] = useState(false);
   const [listaTarefas, setListaTarefas] = useState<Tarefa[]>(tarefasTeste);
+  const [tarefaEditando, setTarefaEditando] = useState<Tarefa | undefined>(undefined);
 
-  const adicionarTarefaNaLista = (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => {
-    const partesData = novaTarefa.data.split('/');
-    const dataConvertida = new Date(Number(partesData[2]), Number(partesData[1]) - 1, Number(partesData[0]));
+  const criarDataPrazo = (data: string, hora: string) => {
+    const partesData = data.split('/');
+    const partesHora = hora.split(':');
+
+    return new Date(
+      Number(partesData[2]),
+      Number(partesData[1]) - 1,
+      Number(partesData[0]),
+      Number(partesHora[0]) || 0,
+      Number(partesHora[1]) || 0
+    );
+  };
+
+  const abrirModalCriacao = () => {
+    setTarefaEditando(undefined);
+    setModalVisivel(true);
+  };
+
+  const abrirModalEdicao = (tarefa: Tarefa) => {
+    setTarefaEditando(tarefa);
+    setModalVisivel(true);
+  };
+
+  const fecharModal = () => {
+    setModalVisivel(false);
+    setTarefaEditando(undefined);
+  };
+
+  const excluirTarefa = (id: string) => {
+    setListaTarefas((tarefasAtuais) =>
+      tarefasAtuais.filter((tarefa) => tarefa.id !== id)
+    );
+  };
+
+  const salvarTarefa = (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => {
+    const dataConvertida = criarDataPrazo(novaTarefa.data, novaTarefa.hora);
+
+    if (tarefaEditando) {
+      setListaTarefas((tarefasAtuais) =>
+        tarefasAtuais.map((tarefa) =>
+          tarefa.id === tarefaEditando.id
+            ? {
+                ...tarefa,
+                titulo: novaTarefa.titulo,
+                desc: novaTarefa.descricao,
+                prazo: dataConvertida,
+                finished: tarefaEditando.finished,
+              }
+            : tarefa
+        )
+      );
+      return;
+    }
 
     const tarefaPronta: Tarefa = {
       id: Math.random().toString(), 
@@ -70,8 +121,20 @@ export default function Tarefas() {
       finished: false
     };
 
-    setListaTarefas([tarefaPronta, ...listaTarefas]);
+    setListaTarefas((tarefasAtuais) => [tarefaPronta, ...tarefasAtuais]);
   };
+
+  const tarefaParaEditar = tarefaEditando
+    ? {
+        titulo: tarefaEditando.titulo,
+        descricao: tarefaEditando.desc,
+        data: tarefaEditando.prazo.toLocaleDateString("pt-BR"),
+        hora: tarefaEditando.prazo.toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }
+    : undefined;
 
   return (
     <View style={styles.container}>
@@ -87,8 +150,8 @@ export default function Tarefas() {
         </View>
       )}
       
-      <View style={styles.header}>
-        <Pressable style={styles.botaoMais} onPress={() => setModalVisivel(true)}>
+      <View style={[styles.header, desktop && styles.headerDesktop]}>
+        <Pressable style={styles.botaoMais} onPress={abrirModalCriacao}>
           <MaterialIcons name="add" size={20} color="#6750A4" />
         </Pressable>
       </View>
@@ -99,12 +162,19 @@ export default function Tarefas() {
         </Text>
       )}
 
-      <ListaTarefas tarefas={listaTarefas} desktop={desktop}/>
+      <ListaTarefas
+        tarefas={listaTarefas}
+        desktop={desktop}
+        onEditar={abrirModalEdicao}
+        onExcluir={excluirTarefa}
+      />
 
       <ModalTarefa 
         visivel={modalVisivel} 
-        fecharModal={() => setModalVisivel(false)} 
-        onSalvar={adicionarTarefaNaLista} 
+        fecharModal={fecharModal} 
+        onSalvar={salvarTarefa}
+        desktop={desktop}
+        tarefaParaEditar={tarefaParaEditar}
       />
     </View>
   );
@@ -135,6 +205,10 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'flex-end', 
     marginBottom: 20,
+  },
+
+  headerDesktop: {
+    marginRight: 60,
   },
 
   botaoMais: {

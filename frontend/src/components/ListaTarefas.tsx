@@ -1,7 +1,4 @@
-import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Colors } from "../constants/theme";
-import { useState } from "react";
+import { FlatList, StyleSheet } from "react-native";
 import TarefaCard from "./TarefaCard";
 
 type Tarefa = {
@@ -14,12 +11,16 @@ type Tarefa = {
 
 type ListaTarefasProps = {
     tarefas : Tarefa[],
-    desktop : boolean
+    desktop : boolean,
+    onEditar: (tarefa: Tarefa) => void,
+    onExcluir: (id: string) => void
 }
 
 export default function ListaTarefas({
     tarefas,
-    desktop
+    desktop,
+    onEditar,
+    onExcluir
 } : ListaTarefasProps) {
 
     const numColunas = desktop ? 3 : 1;
@@ -33,11 +34,14 @@ export default function ListaTarefas({
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) =>
                 <TarefaCard 
+                    id={item.id}
                     titulo={item.titulo}
                     desc={item.desc}
                     prazo={item.prazo}
                     finished={item.finished}
                     desktop={desktop}
+                    onEditar={onEditar}
+                    onExcluir={onExcluir}
                 />}
             />
     )

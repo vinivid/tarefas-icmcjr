@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Colors } from "@/src/constants/theme";
 import ListaTarefas from "@/src/components/ListaTarefas";
 import ModalTarefa from "../../components/ModalTarefa";
+import Filtro from "@/src/components/Filtro";
 
 type Tarefa = {
   id: string;
@@ -151,6 +152,8 @@ export default function Tarefas() {
       )}
       
       <View style={[styles.header, desktop && styles.headerDesktop]}>
+        <Filtro/>
+
         <Pressable style={styles.botaoMais} onPress={abrirModalCriacao}>
           <MaterialIcons name="add" size={20} color="#6750A4" />
         </Pressable>
@@ -203,12 +206,15 @@ const styles = StyleSheet.create({
   },
   
   header: {
-    alignItems: 'flex-end', 
-    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 
   headerDesktop: {
-    marginRight: 60,
+    marginHorizontal: 80,
+    marginTop: 60,
+    marginBottom: 10
   },
 
   botaoMais: {

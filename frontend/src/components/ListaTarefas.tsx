@@ -54,6 +54,6 @@ const styles = StyleSheet.create({
     },
 
     listadesktop : {
-        paddingHorizontal: 60
+        marginLeft: 60
     }
 })

@@ -14,6 +14,13 @@ type Tarefa = {
   finished: boolean;
 };
 
+export type TipoFiltro =
+  | "todos"
+  | "atrasado"
+  | "andamento"
+  | "finalizado";
+
+
 const tarefasTeste = [
   {
     id: '1',
@@ -56,6 +63,7 @@ export default function Tarefas() {
   const { width } = useWindowDimensions();
   const desktop = width >= 900;       
  
+  const [filtro, setFiltro] = useState<TipoFiltro>("todos");
   const [modalVisivel, setModalVisivel] = useState(false);
   const [listaTarefas, setListaTarefas] = useState<Tarefa[]>(tarefasTeste);
   const [tarefaEditando, setTarefaEditando] = useState<Tarefa | undefined>(undefined);
@@ -152,7 +160,7 @@ export default function Tarefas() {
       )}
       
       <View style={[styles.header, desktop && styles.headerDesktop]}>
-        <Filtro/>
+        <Filtro onFiltroChange={setFiltro}/>
 
         <Pressable style={styles.botaoMais} onPress={abrirModalCriacao}>
           <MaterialIcons name="add" size={20} color="#6750A4" />
@@ -209,6 +217,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+
+    zIndex: 100,
+    elevation: 100
   },
 
   headerDesktop: {

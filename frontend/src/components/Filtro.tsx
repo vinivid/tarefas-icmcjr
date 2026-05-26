@@ -1,10 +1,16 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
+import { TipoFiltro } from "../screens/home/Tarefas";
 import { Colors } from "@/src/constants/theme";
 import { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 
-export default function Filtro() {
+type FiltroProps = {
+    onFiltroChange: (filtro: TipoFiltro) => void
+}
+
+export default function Filtro({
+    onFiltroChange
+} : FiltroProps) {
 
     const [aberto, setAberto] = useState(false);
     const options = ["Atrasado", "Em andamento", "Finalizado"];
@@ -16,23 +22,24 @@ export default function Filtro() {
                 <Text style={styles.txtfiltro}>
                     Filtro
                 </Text>
+                <MaterialIcons name="keyboard-arrow-down" size={24}color={Colors.light.primary}/>
             </Pressable>
 
             {aberto && (
                 <View style={styles.dropdown}>
-                    <Pressable>
+                    <Pressable onPress={() => onFiltroChange("atrasado")}>
                         <Text style={styles.atraso}>
                         Atrasado
                         </Text>
                     </Pressable>
 
-                    <Pressable>
+                    <Pressable onPress={() => onFiltroChange("andamento")}>
                         <Text style={styles.andamento}>
                         Em andamento
                         </Text>
                     </Pressable>
 
-                    <Pressable>
+                    <Pressable onPress={() => onFiltroChange("finalizado")}>
                         <Text style={styles.finalizado}>
                         Finalizado
                         </Text>
@@ -64,12 +71,22 @@ const styles = StyleSheet.create({
 
     dropdown : {
         backgroundColor: 'white',
+        paddingVertical: 30,
+        paddingHorizontal: 5,
+        borderWidth: 2,
+        borderColor: Colors.light.primary,
+        borderRadius: 20,
+
         position: 'absolute',
-        top: 45,
+        top: 35,
         left: 0,
-        minWidth: 100,
+        
+        minWidth: 130,
         marginVertical: 5,
         gap: 5,
+
+        zIndex: 100,
+        elevation: 100
     },
 
     finalizado : {
@@ -78,7 +95,8 @@ const styles = StyleSheet.create({
         borderColor: 'green',
         borderWidth: 2,
         borderRadius: 20,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        textAlign: 'center'
     },
 
     atraso : {
@@ -87,7 +105,8 @@ const styles = StyleSheet.create({
         fontWeight: 600,
         borderWidth: 2,
         borderRadius: 20,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        textAlign: 'center'
     },
 
     andamento : {
@@ -96,6 +115,7 @@ const styles = StyleSheet.create({
         fontWeight: 600,
         borderWidth: 2,
         borderRadius: 20,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        textAlign: 'center'
     },
 })

@@ -70,6 +70,8 @@ export type BirthDate = Date;
  * @returns um BirthYear valido
  */
 export function createBirthYear(date : string) : Result<BirthDate, UserInputError> {
+  console.log(date);
+
   if (/\s+/.test(date) || date === '') 
     return { ok: false, error : UserInputError.Empty };
 

@@ -99,10 +99,11 @@ export default function MaskedLineInput({
   onBlur
 } : LineInputProps){
   const [focus, setFocus] = useState(false);
+    const mostrarIcones = editable !== false;
 
   return (
     <View>
-      {!error && (
+      {!error && editable !== false && (
         <Pressable 
           style={styles.closeIcon} 
           onPress={onClosePress}

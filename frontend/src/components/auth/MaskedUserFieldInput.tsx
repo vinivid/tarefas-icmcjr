@@ -16,6 +16,7 @@ export interface UserFieldInputProps<T> {
   maxLenght?: number;
   setFieldStr: (masked : string, unmasked : string) => void;
   errorMsg: (err : UserInputError) => string;
+  editable?: boolean;
 }
 
 /**
@@ -49,6 +50,9 @@ export interface UserFieldInputProps<T> {
  * @param errorMsg função que dado um UserInputError
  * gera a string que explica o erro de input para o
  * usuário
+ * 
+ * @param editable indica se o input é editavel ou
+ * não
  */
 export default function MaskedUserFieldInput<T>({
   label,
@@ -60,7 +64,8 @@ export default function MaskedUserFieldInput<T>({
   placeholder,
   maxLenght,
   setFieldStr,
-  errorMsg
+  errorMsg,
+  editable
 } : UserFieldInputProps<T> ) {
   
   return (
@@ -75,6 +80,7 @@ export default function MaskedUserFieldInput<T>({
         placeholder={placeholder}
         onClosePress={() => setFieldStr('', '')}
         mask={mask}
+        editable={editable}
       />
     ) : (
       <MaskedLineInput
@@ -94,6 +100,7 @@ export default function MaskedUserFieldInput<T>({
         errorValue={errorMsg(fieldRes.error)}
         onClosePress={() => setFieldStr('', '')}
         mask={mask}
+        editable={editable}
       />
     )}
     </>

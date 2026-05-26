@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { type Username, type BirthDate, type Email, type Cpf, type Password } from "@/src/types/User";
+import { createContext, use, useContext, useState, type ReactNode } from "react";
+import { type Username, type BirthDate, type Email, type Cpf, type Password, createBirthYear } from "@/src/types/User";
 
 // Erros relativos a criação de váriaves de usuário
 export const RegisterError = {
@@ -21,16 +21,10 @@ export const LoginError = {
 export type LoginError = 
   typeof LoginError[keyof typeof LoginError];
 
-type Usuario = {
-  nome: string;
-  dataNascimento: string;
-  email: string;
-  cpf: string;
-  senha: string;
-}
 
 type AuthContextType = {
   auth: boolean;
+  user: Usuario | null;
   register: (username : Username, 
     birthDate : BirthDate,
     email: Email,
@@ -46,12 +40,20 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+export type Usuario = {
+  nome: Username;
+  dataNascimento: BirthDate;
+  email: Email;
+  cpf: Cpf;
+  senha: Password;
+}
+
 // dados ficticios enquanto não tem backend
 const USUARIO_FICTICIO: Usuario = {
   nome: "Fulano de tal",
-  dataNascimento: "01/01/2000",
+  dataNascimento: new Date("2000-03-03"),
   email: "fulano@dominio.com",
-  cpf: "123.456.789-00",
+  cpf: "255.193.040-50",
   senha: "minhasenha123",
 }
 
@@ -121,7 +123,7 @@ export function AuthProvider({
   }
 
   return (
-    <AuthContext.Provider value={{auth, register, login, logout}}>
+    <AuthContext.Provider value={{auth, user, register, login, logout}}>
       {children}
     </AuthContext.Provider>
   )

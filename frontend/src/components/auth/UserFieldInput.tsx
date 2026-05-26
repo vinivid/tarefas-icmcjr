@@ -14,6 +14,7 @@ export interface UserFieldInputProps<T> {
   maxLenght?: number;
   setFieldStr: (v : string) => void;
   errorMsg: (err : UserInputError) => string;
+  editable?: boolean;
 }
 
 /**
@@ -45,6 +46,9 @@ export interface UserFieldInputProps<T> {
  * @param errorMsg função que dado um UserInputError
  * gera a string que explica o erro de input para o
  * usuário
+ * 
+ * @param editable indica se o input é editavel ou
+ * não
  */
 export default function UserFieldInput<T>({
   label,
@@ -55,7 +59,8 @@ export default function UserFieldInput<T>({
   placeholder,
   maxLenght,
   setFieldStr,
-  errorMsg
+  errorMsg,
+  editable
 } : UserFieldInputProps<T> ) {
   
   return (
@@ -69,6 +74,7 @@ export default function UserFieldInput<T>({
         secureTextEntry={secureTextEntry}
         placeholder={placeholder}
         onClosePress={() => setFieldStr('')}
+        editable={editable}
       />
     ) : (
       <LineInput
@@ -87,6 +93,7 @@ export default function UserFieldInput<T>({
         }
         errorValue={errorMsg(fieldRes.error)}
         onClosePress={() => setFieldStr('')}
+        editable={editable}
       />
     )}
     </>

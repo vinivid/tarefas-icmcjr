@@ -1,12 +1,21 @@
 import { useState, useRef } from "react"
 import { View, Text, ScrollView, Modal, Pressable, StyleSheet, KeyboardAvoidingView, Platform, TextInput, Keyboard, TouchableWithoutFeedback } from "react-native"
-import { useNavigation } from "@react-navigation/native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
+
+import { emailErrorMsg, cpfErrorMsg, usernameErrorMsg, passwordErrorMsg, dateErrorMsg } from "../auth/authUtils";
 
 import { Colors } from "@/src/constants/theme"
 import Botao from "@/src/components/Botao"
+import UserFieldInput from "@/src/components/auth/UserFieldInput"
+import MaskedUserFieldInput from "@/src/components/auth/MaskedUserFieldInput";
 import LineInput from "@/src/components/LineInput"
 import { useAuth } from "@/src/context/AuthContext"
+
+import useUsernameStr from "@/src/hooks/auth/useUsernameStr";
+import usePasswordStr from "@/src/hooks/auth/usePasswordStr";
+import useEmailStr from "@/src/hooks/auth/useEmailStr";
+import useCpfStr from "@/src/hooks/auth/useCpfStr";
+import useDateStr from "@/src/hooks/auth/useDateStr";
 
 function mascaraCpf(valor: string) {
   const digits = valor.replace(/\D/g, "").slice(0, 11)
@@ -73,91 +82,47 @@ function validarConfirmacao(senha: string, confirmacao: string) {
 
 export default function Perfil() {
   const { user, logout } = useAuth()
-  const navigation = useNavigation()
 
-  const [editando, setEditando] = useState(false)
-  const [modalVisivel, setModalVisivel] = useState(false)
+  const [editando, setEditando] = useState(false);
+  const [modalVisivel, setModalVisivel] = useState(false);
 
-  const [nome, setNome] = useState(user?.nome ?? "")
-  const [dataNascimento, setDataNascimento] = useState(user?.dataNascimento ?? "")
-  const [email, setEmail] = useState(user?.email ?? "")
-  const [cpf, setCpf] = useState(user?.cpf ?? "")
-  const [novaSenha, setNovaSenha] = useState("")
-  const [confirmarSenha, setConfirmarSenha] = useState("")
+  const { usernameStr, username, setUsernameStr } = useUsernameStr(user?.nome ?? "");
+  const { dateStr, date, setDateStr} = useDateStr(user?.dataNascimento.toLocaleDateString('en-CH').replace(/-/, '/') ?? "");
+  const { emailStr, email, setEmailStr } = useEmailStr(user?.email ?? "");
+  const { cpfStr, cpf, setCpfStr } = useCpfStr(user?.cpf ?? "");
+  const { passwordStr, password, setPasswordStr } = usePasswordStr('');
+  const [ passwordRepeat, setPasswordRepeat ] = useState('');
+  const [ passwordDiff, setPasswordDiff ] = useState(false);
+  
   const [textoExcluir, setTextoExcluir] = useState("")
 
-  const [erros, setErros] = useState({
-    nome: "", dataNascimento: "", email: "", cpf: "", novaSenha: "", confirmarSenha: "",
-  })
-
-  const validacaoAtiva = useRef(false)
-
-  function atualizarNome(v: string) {
-    setNome(v)
-    if (validacaoAtiva.current) setErros(e => ({ ...e, nome: validarNome(v) }))
-  }
-  function atualizarData(v: string) {
-    const formatado = mascaraData(v)
-    setDataNascimento(formatado)
-    if (validacaoAtiva.current) setErros(e => ({ ...e, dataNascimento: validarData(formatado) }))
-  }
-  function atualizarEmail(v: string) {
-    setEmail(v)
-    if (validacaoAtiva.current) setErros(e => ({ ...e, email: validarEmail(v) }))
-  }
-  function atualizarCpf(v: string) {
-    const formatado = mascaraCpf(v)
-    setCpf(formatado)
-    if (validacaoAtiva.current) setErros(e => ({ ...e, cpf: validarCpf(formatado) }))
-  }
-  function atualizarNovaSenha(v: string) {
-    setNovaSenha(v)
-    if (validacaoAtiva.current)
-      setErros(e => ({ ...e, novaSenha: validarSenha(v), confirmarSenha: validarConfirmacao(v, confirmarSenha) }))
-  }
-  function atualizarConfirmarSenha(v: string) {
-    setConfirmarSenha(v)
-    if (validacaoAtiva.current) setErros(e => ({ ...e, confirmarSenha: validarConfirmacao(novaSenha, v) }))
-  }
-
   function handleCancelarEdicao() {
-    setNome(user?.nome ?? "")
-    setDataNascimento(user?.dataNascimento ?? "")
-    setEmail(user?.email ?? "")
-    setCpf(user?.cpf ?? "")
-    setNovaSenha("")
-    setConfirmarSenha("")
-    setErros({ nome: "", dataNascimento: "", email: "", cpf: "", novaSenha: "", confirmarSenha: "" })
-    validacaoAtiva.current = false
-    setEditando(false)
+    setUsernameStr(user?.nome ?? "");
+    setDateStr(user?.dataNascimento.toLocaleDateString('en-CH').replace(/\./, '/') ?? "");
+    setEmailStr(user?.email ?? "");
+    setCpfStr(user?.cpf ?? "");
+    setPasswordStr("");
+    setPasswordRepeat("");
+    setEditando(false);
   }
 
   function handleConfirmarAlteracoes() {
-    validacaoAtiva.current = true
-    const novosErros = {
-      nome: validarNome(nome),
-      dataNascimento: validarData(dataNascimento),
-      email: validarEmail(email),
-      cpf: validarCpf(cpf),
-      novaSenha: validarSenha(novaSenha),
-      confirmarSenha: validarConfirmacao(novaSenha, confirmarSenha),
-    }
-    setErros(novosErros)
-    if (Object.values(novosErros).some(e => e !== "")) return
-    validacaoAtiva.current = false
+    if ((username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== ''))
+      return;
+
     setEditando(false)
   }
 
   function handleExcluirConta() {
     if (textoExcluir !== "Excluir") return
-    logout()
-    setModalVisivel(false)
+    logout();
+    setModalVisivel(false);
   }
 
   const SENHA_PLACEHOLDER = "*".repeat((user?.senha?.length ?? 0) > 0 ? user!.senha!.length : 10)
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}> 
+    <TouchableWithoutFeedback> 
       <KeyboardAvoidingView
       style={styles.tela}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -169,36 +134,94 @@ export default function Perfil() {
         </Pressable>
       )}
 
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.container}>
 
-        <LineInput label="Nome completo" value={nome} onChangeText={atualizarNome}
-          onClosePress={() => atualizarNome("")} editable={editando}
-          error={!!erros.nome} errorValue={erros.nome} />
+        <UserFieldInput 
+          label="Nome completo" 
+          fieldStr={usernameStr} 
+          fieldRes={username}
+          editable={editando}
+          setFieldStr={setUsernameStr}
+          errorMsg={usernameErrorMsg}
+        />
 
-        <LineInput label="Data de nascimento" value={dataNascimento} onChangeText={atualizarData}
-          onClosePress={() => atualizarData("")} keyboardType="numeric"
-          editable={editando} error={!!erros.dataNascimento} errorValue={erros.dataNascimento} />
+        <MaskedUserFieldInput
+          label="Data de nascimento"
+          fieldStr={dateStr}
+          fieldRes={date}
+          setFieldStr={(m, u) => setDateStr(m)}
+          keyboardType="numeric"
+          errorMsg={dateErrorMsg}
+          maxLenght={10}
+          editable={editando}
+          mask={[/\d/,/\d/,'/',/\d/,/\d/,'/',/\d/,/\d/,/\d/,/\d/]}
+        />
 
-        <LineInput label="E-mail" value={email} onChangeText={atualizarEmail}
-          onClosePress={() => atualizarEmail("")} keyboardType="email-address"
-          editable={editando} error={!!erros.email} errorValue={erros.email} />
+        <UserFieldInput
+          label="Email"
+          fieldStr={emailStr}
+          fieldRes={email}
+          setFieldStr={setEmailStr}
+          keyboardType="email-address"
+          errorMsg={emailErrorMsg}
+          placeholder="Email do usuário"
+          editable={editando}
+        />
 
-        <LineInput label="CPF" value={cpf} onChangeText={atualizarCpf}
-          onClosePress={() => atualizarCpf("")} placeholder="XXX.XXX.XXX-XX" keyboardType="numeric"
-          editable={editando} error={!!erros.cpf} errorValue={erros.cpf} />
+        <MaskedUserFieldInput
+          label="Cpf"
+          fieldStr={cpfStr}
+          fieldRes={cpf}
+          maxLenght={14}
+          setFieldStr={(m, u) => {setCpfStr(m)}}
+          keyboardType="numeric"
+          errorMsg={cpfErrorMsg}
+          placeholder="Seu Cpf"
+          editable={editando}
+          mask={[/\d/,/\d/,/\d/,'.',/\d/,/\d/,/\d/,'.',/\d/,/\d/,/\d/,'-',/\d/,/\d/]}
+        />
 
         {!editando ? (
-          <LineInput label="Senha" value={SENHA_PLACEHOLDER} onChangeText={() => {}}
-            onClosePress={() => {}} editable={false} />
+          <LineInput 
+            label="Senha" 
+            value={SENHA_PLACEHOLDER} 
+            onChangeText={() => {}}
+            onClosePress={() => {}} 
+            editable={false} 
+          />
         ) : (
           <>
-            <LineInput label="Nova senha" value={novaSenha} onChangeText={atualizarNovaSenha}
-              onClosePress={() => atualizarNovaSenha("")} secureTextEntry editable
-              error={!!erros.novaSenha} errorValue={erros.novaSenha} />
-
-            <LineInput label="Confirmar senha" value={confirmarSenha} onChangeText={atualizarConfirmarSenha}
-              onClosePress={() => atualizarConfirmarSenha("")} secureTextEntry editable
-              error={!!erros.confirmarSenha} errorValue={erros.confirmarSenha} />
+            <UserFieldInput
+              label="Senha"
+              fieldStr={passwordStr}
+              fieldRes={password}
+              setFieldStr={(s) => {
+                if (passwordRepeat !== '' && (passwordStr !== passwordRepeat))
+                  setPasswordDiff(true);
+                else
+                  setPasswordDiff(false);
+                setPasswordStr(s);
+              }}
+              errorMsg={passwordErrorMsg}
+              secureTextEntry={true}
+              placeholder="Sua senha"
+            />
+            <LineInput
+              label="Repita senha"
+              placeholder="Repita sua senha"
+              value={passwordRepeat}
+              onChangeText={(s) => {
+                if (s !== '' && passwordStr !== s)
+                  setPasswordDiff(true);
+                else
+                  setPasswordDiff(false);
+                setPasswordRepeat(s);
+              }}
+              secureTextEntry={true}
+              onClosePress={() => setPasswordRepeat('')}
+              error={passwordDiff}
+              errorValue="As senhas precisam ser iguais"
+            />
           </>
         )}
 
@@ -218,7 +241,7 @@ export default function Perfil() {
       </ScrollView>
 
       <Modal visible={modalVisivel} transparent animationType="fade" onRequestClose={() => setModalVisivel(false)}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback>
         <View style={styles.modalFundo}>
           <View style={styles.modalCaixa}>
 

@@ -17,69 +17,6 @@ import useEmailStr from "@/src/hooks/auth/useEmailStr";
 import useCpfStr from "@/src/hooks/auth/useCpfStr";
 import useDateStr from "@/src/hooks/auth/useDateStr";
 
-function mascaraCpf(valor: string) {
-  const digits = valor.replace(/\D/g, "").slice(0, 11)
-  return digits
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-}
-
-function mascaraData(valor: string) {
-  const digits = valor.replace(/\D/g, "").slice(0, 8)
-  return digits
-    .replace(/(\d{2})(\d)/, "$1/$2")
-    .replace(/(\d{2})(\d)/, "$1/$2")
-}
-
-
-function validarNome(nome: string) {
-  if (!nome.trim()) return "Nome é obrigatório."
-  if (nome.trim().length < 3) return "Nome deve ter ao menos 3 caracteres."
-  return ""
-}
-
-function validarData(data: string) {
-  if (!data.trim()) return "Data é obrigatória."
-  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data)) return "Use o formato DD/MM/AAAA."
-
-  const [dia, mes, ano] = data.split("/").map(Number)
-  const anoAtual = new Date().getFullYear()
-
-  const diasNoMes = new Date(ano, mes, 0).getDate()
-  if (
-    ano < 1900 || ano > anoAtual ||
-    mes < 1 || mes > 12 ||
-    dia < 1 || dia > diasNoMes
-  ) return "Insira uma data válida."
-
-  return ""
-}
-
-function validarEmail(email: string) {
-  if (!email.trim()) return "E-mail é obrigatório."
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "E-mail inválido."
-  return ""
-}
-
-function validarCpf(cpf: string) {
-  if (!cpf.trim()) return "CPF é obrigatório."
-  if (cpf.replace(/\D/g, "").length !== 11) return "CPF deve ter 11 dígitos."
-  return ""
-}
-
-function validarSenha(senha: string) {
-  if (!senha) return "Nova senha é obrigatória."
-  if (senha.length < 6) return "Senha deve ter ao menos 6 caracteres."
-  return ""
-}
-
-function validarConfirmacao(senha: string, confirmacao: string) {
-  if (!confirmacao) return "Confirme a senha."
-  if (senha !== confirmacao) return "As senhas não coincidem."
-  return ""
-}
-
 export default function Perfil() {
   const { user, logout } = useAuth()
 
@@ -107,6 +44,7 @@ export default function Perfil() {
   }
 
   function handleConfirmarAlteracoes() {
+    console.log(date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== '');
     if ((username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== ''))
       return;
 

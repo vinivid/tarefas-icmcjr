@@ -37,7 +37,7 @@ export type Username = string;
  */
 export function createUsername(name : string) : Result<Username, UserInputError> {
   // Nome vazio ou somente espaços
-  if (/\s+/.test(name) || name === '')
+  if (/^\s+/.test(name) || name === '')
     return { ok: false, error : UserInputError.Empty };
 
   // Este regex verifica se o nome do usuário contem caracteres de URL,
@@ -70,9 +70,7 @@ export type BirthDate = Date;
  * @returns um BirthYear valido
  */
 export function createBirthYear(date : string) : Result<BirthDate, UserInputError> {
-  console.log(date);
-
-  if (/\s+/.test(date) || date === '') 
+  if (/^\s+/.test(date) || date === '') 
     return { ok: false, error : UserInputError.Empty };
 
   let dat;
@@ -114,7 +112,7 @@ export function createPassword(pass : string) : Result<Password, UserInputError>
     return { ok: false, error : UserInputError.Minlen };
 
   // Senha vazia ou somente espaços
-  if (/\s+/.test(pass) || pass === '')
+  if (/^\s+/.test(pass))
     return { ok: false, error : UserInputError.Empty };
 
   // Caracteres de controle
@@ -142,7 +140,7 @@ export function createPassword(pass : string) : Result<Password, UserInputError>
 export type Email = string;
 
 export function createEmail(email : string) : Result<Email, UserInputError> {
-  if (/\s+/.test(email) || email === '')
+  if (/^\s+/.test(email) || email === '')
     return { ok: false, error : UserInputError.Empty };
 
   email = email.trim();

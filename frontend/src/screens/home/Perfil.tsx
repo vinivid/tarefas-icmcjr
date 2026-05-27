@@ -31,6 +31,9 @@ export default function Perfil() {
   const [ passwordRepeat, setPasswordRepeat ] = useState('');
   const [ passwordDiff, setPasswordDiff ] = useState(false);
   
+  const [erroCampos, setErroCampos] = useState(false);
+  const [erroSenha, setErroSenha] = useState(false);
+
   const [textoExcluir, setTextoExcluir] = useState("")
 
   function handleCancelarEdicao() {
@@ -41,15 +44,25 @@ export default function Perfil() {
     setPasswordStr("");
     setPasswordRepeat("");
     setEditando(false);
+    setErroCampos(false);
+    setErroSenha(false);
   }
 
   function handleConfirmarAlteracoes() {
-    console.log(date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== '');
-    if ((username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== ''))
-      return;
-
-    setEditando(false)
+  if (!username.ok || !date.ok || !email.ok || !cpf.ok) {
+    setErroCampos(true);
+    return;
   }
+  setErroCampos(false);
+
+  if (!password.ok || passwordDiff || passwordRepeat === '') {
+    setErroSenha(true);
+    return;
+  }
+  setErroSenha(false);
+
+  setEditando(false);
+}
 
   function handleExcluirConta() {
     if (textoExcluir !== "Excluir") return
@@ -170,20 +183,27 @@ export default function Perfil() {
         )}
 
         <View style={styles.botoes}>
-          {!editando ? (
-            <>
-            <Botao conteudo="Editar perfil" onPress={() => setEditando(true)} />
-            <Botao conteudo="Sair" onPress={() => handleLogout()} />
-            </>
-          ) : (
-            <>
+  {!editando ? (
+    <>
+      <Botao conteudo="Editar perfil" onPress={() => setEditando(true)} />
+      <Botao conteudo="Sair" onPress={handleLogout} />
+    </>
+  ) : (
+    <>
+      <View style={styles.legendContainer}>
+              {(erroCampos || erroSenha) && (
+                <Text style={styles.legendTextError}>
+                  Corrija os campos inválidos antes de salvar.
+                </Text>
+              )}
               <Botao conteudo="Confirmar alterações" onPress={handleConfirmarAlteracoes} />
-              <Pressable style={styles.botaoExcluir} onPress={() => setModalVisivel(true)}>
-                <Text style={styles.botaoExcluirTexto}>Excluir conta</Text>
-              </Pressable>
-            </>
-          )}
-        </View>
+            </View>
+            <Pressable style={styles.botaoExcluir} onPress={() => setModalVisivel(true)}>
+              <Text style={styles.botaoExcluirTexto}>Excluir conta</Text>
+            </Pressable>
+          </>
+        )}
+      </View>
 
       </ScrollView>
 
@@ -354,4 +374,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 16,
   },
+  legendContainer: {
+  rowGap: 6,
+  alignItems: "center",
+},
+legendTextError: {
+  color: Colors.light.error,
+  fontFamily: "RobotoMono_400Regular",
+  fontSize: 12,
+  marginLeft: 5,
+},
 })

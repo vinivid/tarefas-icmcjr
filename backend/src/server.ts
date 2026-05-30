@@ -1,9 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 
-import { User } from "./models/usuario.model.js";
+import { findUsuarioByEmail } from "./models/usuario.model.js";
 
 dotenv.config();
 
@@ -18,8 +17,7 @@ app.get("/", (req, res) => {
 
 // Fazendo uma query simples
 app.get("/tst", async (req, res) => {
-  await mongoose.connect(process.env.MONGO_URL!);
-  const usr = await User.find({ nome: "A" })
+  const usr = await findUsuarioByEmail("a@g.c");
   res
     .status(200)
     .json(usr)

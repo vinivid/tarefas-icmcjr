@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { type Username, type BirthDate, type Email, type Cpf, type Password, createBirthYear } from "@/src/types/User";
-
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { type Username, type BirthDate, type Email, type Cpf, type Password} from "@/src/types/User";
+import { useStorageState } from "../hooks/secureStore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Erros relativos a criação de váriaves de usuário
 export const RegisterError = {
@@ -24,7 +25,7 @@ export type LoginError =
 
 
 type AuthContextType = {
-  authToken: string;
+  authToken: string | null;
   usuario: Usuario | null;
   registrar: (
     nome: Username, 
@@ -57,9 +58,31 @@ export function AuthProvider({
 }: {
   children: ReactNode
 }) {
-  const [authToken, setAuthToken] = useState('');
+  const [[c_, authToken], setAuthToken] = useStorageState("token");
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+
+  useEffect(() => {
+    async function carregarUsr() {
+      const usrStore = await AsyncStorage.getItem("usr");
+
+      if (usrStore) {
+        const usr = JSON.parse(usrStore);
+        usr.dataNascimento = new Date(usr.dataNascimento);
+        setUsuario(usr);
+      }
+    }
+
+    carregarUsr();
+  }, [])
   
+  async function salvarUsr(usuario : Usuario) {
+    await AsyncStorage.setItem("usr", JSON.stringify(usuario));
+  }
+
+  async function removerUsr() {
+    await AsyncStorage.removeItem("usr");    
+  }
+
   const registrar = async (nome : Username, dataNascimento : BirthDate, 
     email : Email, cpf : Cpf, senha : Password
   ) => {
@@ -76,6 +99,7 @@ export function AuthProvider({
           const data = await res.json();
           setAuthToken(data.token);
           setUsuario(data.usuario);
+          await salvarUsr(data.usuario);
           return null;
         }
         case 409: {
@@ -109,6 +133,7 @@ export function AuthProvider({
             const data = await res.json();
             setAuthToken(data.token);
             setUsuario(data.usuario);
+            await salvarUsr(data.usuario);
             return null;
           }
           case 404:
@@ -135,6 +160,7 @@ export function AuthProvider({
             const data = await res.json();
             setAuthToken(data.token);
             setUsuario(data.usuario);
+            await salvarUsr(data.usuario);
             return null;
           }
           case 404:
@@ -152,7 +178,8 @@ export function AuthProvider({
 
   const logout = () => {
     setUsuario(null);
-    setAuthToken('');
+    setAuthToken(null);
+    removerUsr();
   }
 
   return (

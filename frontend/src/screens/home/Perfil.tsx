@@ -18,15 +18,15 @@ import useCpfStr from "@/src/hooks/auth/useCpfStr";
 import useDateStr from "@/src/hooks/auth/useDateStr";
 
 export default function Perfil() {
-  const { user, logout } = useAuth()
+  const { usuario, logout } = useAuth()
 
   const [editando, setEditando] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
 
-  const { usernameStr, username, setUsernameStr } = useUsernameStr(user?.nome ?? "");
-  const { dateStr, date, setDateStr} = useDateStr(user?.dataNascimento.toLocaleDateString('en-CH').replace(/-/, '/') ?? "");
-  const { emailStr, email, setEmailStr } = useEmailStr(user?.email ?? "");
-  const { cpfStr, cpf, setCpfStr } = useCpfStr(user?.cpf ?? "");
+  const { usernameStr, username, setUsernameStr } = useUsernameStr(usuario?.nome ?? "");
+  const { dateStr, date, setDateStr} = useDateStr(usuario?.dataNascimento.toLocaleDateString('en-CH').replace(/-/, '/') ?? "");
+  const { emailStr, email, setEmailStr } = useEmailStr(usuario?.email ?? "");
+  const { cpfStr, cpf, setCpfStr } = useCpfStr(usuario?.cpf ?? "");
   const { passwordStr, password, setPasswordStr } = usePasswordStr('');
   const [ passwordRepeat, setPasswordRepeat ] = useState('');
   const [ passwordDiff, setPasswordDiff ] = useState(false);
@@ -37,10 +37,10 @@ export default function Perfil() {
   const [textoExcluir, setTextoExcluir] = useState("")
 
   function handleCancelarEdicao() {
-    setUsernameStr(user?.nome ?? "");
-    setDateStr(user?.dataNascimento.toLocaleDateString('en-CH').replace(/\./, '/') ?? "");
-    setEmailStr(user?.email ?? "");
-    setCpfStr(user?.cpf ?? "");
+    setUsernameStr(usuario?.nome ?? "");
+    setDateStr(usuario?.dataNascimento.toLocaleDateString('en-CH').replace(/\./, '/') ?? "");
+    setEmailStr(usuario?.email ?? "");
+    setCpfStr(usuario?.cpf ?? "");
     setPasswordStr("");
     setPasswordRepeat("");
     setEditando(false);
@@ -74,7 +74,7 @@ export default function Perfil() {
     logout();
   }
 
-  const SENHA_PLACEHOLDER = "●".repeat((user?.senha?.length ?? 0) > 0 ? user!.senha!.length : 10)
+  const SENHA_PLACEHOLDER = "●".repeat((usuario?.senha?.length ?? 0) > 0 ? usuario!.senha!.length : 10)
 
   return (
     <TouchableWithoutFeedback> 

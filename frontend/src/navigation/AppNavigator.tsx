@@ -1,3 +1,4 @@
+import { Text } from 'react-native';
 import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -8,7 +9,7 @@ import { HomeNavigator } from './HomeNavigator';
 
 function userIsSignedIn() {
   const { authToken } = useAuth();
-  return authToken !== '';
+  return authToken !== null;
 }
 
 function userIsNotSignedIn() {
@@ -34,9 +35,10 @@ const RootStack = createNativeStackNavigator({
 const Navigation = createStaticNavigation(RootStack);
 
 export default function AppNavigator() {
+
   return (
     <AuthProvider>
-      <Navigation />
+        <Navigation />
     </AuthProvider>
   );
 }

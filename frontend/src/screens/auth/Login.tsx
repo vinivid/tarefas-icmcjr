@@ -124,7 +124,7 @@ export default function Login() {
             )}
             <Botao 
               conteudo="Logar"
-              onPress={() => {
+              onPress={ async () => {
                 const password = createPassword(passVal);
                 if (!password.ok) {
                   setErrPass(true);
@@ -134,7 +134,7 @@ export default function Login() {
                 if (logType === LoginType.Email) {
                   const email = createEmail(logVal);
                   if (email.ok) {
-                    const lRes = login(password.value, email.value)
+                    const lRes = await login(password.value, email.value)
                     if (lRes !== null)
                       loginError(lRes);
 
@@ -144,7 +144,7 @@ export default function Login() {
                 } else {
                   const cpf = createCpf(logVal);
                   if (cpf.ok) {
-                    const lRes = login(password.value, undefined, cpf.value)
+                    const lRes = await login(password.value, undefined, cpf.value)
                     if (lRes !== null)
                       loginError(lRes);
                   } else {

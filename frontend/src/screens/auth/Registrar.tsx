@@ -19,7 +19,7 @@ import { RegisterError } from "@/src/context/AuthContext";
 import { Colors } from "@/src/constants/theme";
 
 export default function Registrar() {
-  const { register } = useAuth();
+  const { registrar } = useAuth();
 
   const { usernameStr, username, setUsernameStr } = useUsernameStr('');
   const { dateStr, date, setDateStr } = useDateStr('');
@@ -161,9 +161,9 @@ export default function Registrar() {
 
             { (username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== '') ? (
               <Botao 
-                conteudo="Registar"
+                conteudo="Registrar"
                 onPress={ async () => {
-                  const v = await register(username.value, date.value, email.value, cpf.value, password.value);
+                  const v = await registrar(username.value, date.value, email.value, cpf.value, password.value);
                   if (v !== null) {
                     if (v === RegisterError.CpfExists)
                       return setCpfRegistered(true);
@@ -176,7 +176,7 @@ export default function Registrar() {
               />
             ) : (
               <Botao 
-                conteudo="Registar"
+                conteudo="Registrar"
                 onPress={() => {}}
                 desativado={true}
               />

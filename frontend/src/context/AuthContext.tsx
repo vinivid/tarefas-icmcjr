@@ -1,4 +1,4 @@
-import { createContext, use, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { type Username, type BirthDate, type Email, type Cpf, type Password, createBirthYear } from "@/src/types/User";
 
 
@@ -13,7 +13,7 @@ export type RegisterError =
   typeof RegisterError[keyof typeof RegisterError];
 
 export const LoginError = {
-  EmailNotFound: "USR_NOT_FOUND",
+  EmailNotFound: "EMAIL_NOT_FOUND",
   CpfNotFound: "CPF_NOT_FOUND",
   WrongPassword: "WRONG_PASSWORD",
   OtherError: "OTHER_ERROR"
@@ -25,38 +25,31 @@ export type LoginError =
 
 type AuthContextType = {
   authToken: string;
-  user: Usuario | null;
-  register: (
+  usuario: Usuario | null;
+  registrar: (
     nome: Username, 
     dataNascimento: BirthDate,
     email: Email,
     cpf: Cpf,
     senha: Password
   ) => Promise<RegisterError | null>
-  login : (password: Password, 
+  login : (
+    senha: Password, 
     email?: Email, 
     cpf?: Cpf
-  ) => LoginError | null;
+  ) => Promise<LoginError | null>;
   logout : () => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export type Usuario = {
+  id: string;
   nome: Username;
   dataNascimento: BirthDate;
   email: Email;
   cpf: Cpf;
   senha: Password;
-}
-
-// dados ficticios enquanto não tem backend
-const USUARIO_FICTICIO: Usuario = {
-  nome: "Fulano de tal",
-  dataNascimento: new Date("2000-03-03"),
-  email: "fulano@dominio.com",
-  cpf: "255.193.040-50",
-  senha: "minhasenha123",
 }
 
 export function AuthProvider({
@@ -65,9 +58,9 @@ export function AuthProvider({
   children: ReactNode
 }) {
   const [authToken, setAuthToken] = useState('');
-  const [user, setUser] = useState<Usuario | null>(null);
-  // Sempre retorna true quando ocorre sem falhas
-  const register = async (nome : Username, dataNascimento : BirthDate, 
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  
+  const registrar = async (nome : Username, dataNascimento : BirthDate, 
     email : Email, cpf : Cpf, senha : Password
   ) => {
     const url = "http://localhost:8080/api/auth/registrar";
@@ -82,7 +75,7 @@ export function AuthProvider({
         case 201: {
           const data = await res.json();
           setAuthToken(data.token);
-          setUser(data.usuario);
+          setUsuario(data.usuario);
           return null;
         }
         case 409: {
@@ -90,55 +83,80 @@ export function AuthProvider({
           return err.err;
         }
       }
-
-      if (res.status !== 201 && res.status !== 409) {
-        return RegisterError.OtherError;
-      }
     } catch (err) {
       console.error(err);
     }
-    return null;
-  } 
 
-  const login = (password: Password, email?: Email, cpf?: Cpf) => {
+    return RegisterError.OtherError;
+  }
+
+  const login = async (senha: Password, email?: Email, cpf?: Cpf) => {
     if (email === undefined && cpf === undefined)
       throw new Error("Um email ou cpf devem ser passados para o login");
 
-    // Tenta logar utilizando o email
     if (email !== undefined) {
-      // colocando um caminho como exemplo de email inexistente
-      if (email === "a@g.c")
-        return LoginError.EmailNotFound;
+      const url = "http://localhost:8080/api/auth/login/email";
 
-      // Colocando uma senha errada como exemplo
-      if (password === '12345679')
-        return LoginError.WrongPassword;
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, senha })
+        })
 
-      setUser(USUARIO_FICTICIO);
-      setAuthToken("a");
-      return null;
+        switch (res.status) {
+          case 200: {
+            const data = await res.json();
+            setAuthToken(data.token);
+            setUsuario(data.usuario);
+            return null;
+          }
+          case 404:
+            return LoginError.EmailNotFound;
+          case 401:
+            return LoginError.WrongPassword;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
     } else {
-      // colocando um caminho como exemplo de cpf inexistente
-      if (cpf === "94124923082")
-        return LoginError.CpfNotFound;
+      const url = "http://localhost:8080/api/auth/login/cpf";
+      
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cpf, senha })
+        })
 
-      // Colocando uma senha errada como exemplo
-      if (password === '12345679')
-        return LoginError.WrongPassword;
-
-      setUser(USUARIO_FICTICIO);
-      setAuthToken('');
-      return null;
+        switch (res.status) {
+          case 200: {
+            const data = await res.json();
+            setAuthToken(data.token);
+            setUsuario(data.usuario);
+            return null;
+          }
+          case 404:
+            return LoginError.CpfNotFound;
+          case 401:
+            return LoginError.WrongPassword;
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
+
+    return LoginError.OtherError;
   }
 
   const logout = () => {
-    setUser(null);
+    setUsuario(null);
     setAuthToken('');
   }
 
   return (
-    <AuthContext.Provider value={{authToken, user, register, login, logout}}>
+    <AuthContext.Provider value={{authToken, usuario, registrar, login, logout}}>
       {children}
     </AuthContext.Provider>
   )

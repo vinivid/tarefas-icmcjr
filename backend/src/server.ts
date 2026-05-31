@@ -1,10 +1,12 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
 import { findUsuarioByEmail } from "./models/usuario.model.js";
 
 dotenv.config();
+const PORT = process.env.PORT || 8080;
 
 const app = express();
 
@@ -23,8 +25,17 @@ app.get("/tst", async (req, res) => {
     .json(usr)
 })
 
-const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
-  console.log(`Servidor na porta ${PORT}`);
-})
+async function main() {
+  try {
+    await mongoose.connect(process.env.MONGO_URL!);
+    
+    app.listen(PORT, () => {
+      console.log(`Servidor na porta ${PORT}`);
+    });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+main();

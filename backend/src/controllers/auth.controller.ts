@@ -1,16 +1,17 @@
 import { Request, Response } from "express";
-import { sign } from "jsonwebtoken";
-import { createUsuario, CreateUsuarioErr } from "../models/usuario.model.js";
+import jwt from "jsonwebtoken";
+import { createUsuario } from "../models/usuario.model.js";
 
 const secret = process.env.JWT_SECRET!;
 
 function gerarToken(
+  id: string,
   nome: string,
   dataNascimento: Date,
   email: string,
 ) {
-  return sign(
-    { nome, dataNascimento, email},
+  return jwt.sign(
+    { id, nome, dataNascimento, email},
     secret
   );
 }
@@ -34,13 +35,13 @@ export async function registrar(req: Request, res: Response) {
   const { nome, dataNascimento, email, cpf, senha } = req.body;
   const resul = await createUsuario(nome, dataNascimento, email, cpf, senha);
 
-  if (resul !== null) {
+  if (typeof resul === "string") {
     res
       .status(409)
       .json({ err: resul });
   } else {
     res
       .status(201)
-      .json({ token: gerarToken(nome, dataNascimento, email)});
+      .json({ token: gerarToken(resul.id, nome, dataNascimento, email)});
   }
 }

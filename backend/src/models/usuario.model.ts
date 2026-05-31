@@ -85,8 +85,7 @@ export async function createUsuario(
   email: string,
   cpf: string,
   senha: string
-) : Promise<null | CreateUsuarioErr >
-{
+) {
   if (await Usuario.exists({ email }))
     return CreateUsuarioErr.EmailExists;
 
@@ -99,5 +98,5 @@ export async function createUsuario(
   const novo_usr = new Usuario({nome, dataNascimento, email, cpf, senha: hashSen});
   await novo_usr.save();
 
-  return null;
+  return novo_usr;
 }

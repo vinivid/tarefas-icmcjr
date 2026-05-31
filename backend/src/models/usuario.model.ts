@@ -26,6 +26,9 @@ const usuarioSchema = new mongoose.Schema({
   }
 });
 
+export type UsuarioJson = mongoose.InferSchemaType<typeof usuarioSchema>; 
+export type UsuarioDoc = mongoose.HydratedDocument<UsuarioJson>; 
+
 const Usuario = mongoose.model("User", usuarioSchema);
 
 // Erros realativos a criação de usuário no banco de dados

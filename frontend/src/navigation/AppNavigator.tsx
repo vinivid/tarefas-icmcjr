@@ -7,8 +7,8 @@ import { AuthNavigator } from './AuthNavigator';
 import { HomeNavigator } from './HomeNavigator';
 
 function userIsSignedIn() {
-  const { auth } = useAuth();
-  return auth;
+  const { authToken } = useAuth();
+  return authToken !== '';
 }
 
 function userIsNotSignedIn() {

@@ -162,8 +162,8 @@ export default function Registrar() {
             { (username.ok && date.ok && email.ok && cpf.ok && password.ok && !passwordDiff && passwordRepeat !== '') ? (
               <Botao 
                 conteudo="Registar"
-                onPress={() => {
-                  const v = register(username.value, date.value, email.value, cpf.value, password.value);
+                onPress={ async () => {
+                  const v = await register(username.value, date.value, email.value, cpf.value, password.value);
                   if (v !== null) {
                     if (v === RegisterError.CpfExists)
                       return setCpfRegistered(true);

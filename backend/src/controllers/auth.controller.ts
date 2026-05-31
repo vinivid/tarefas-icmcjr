@@ -4,14 +4,9 @@ import { createUsuario } from "../models/usuario.model.js";
 
 const secret = process.env.JWT_SECRET!;
 
-function gerarToken(
-  id: string,
-  nome: string,
-  dataNascimento: Date,
-  email: string,
-) {
+function gerarToken() {
   return jwt.sign(
-    { id, nome, dataNascimento, email},
+    {},
     secret
   );
 }
@@ -42,6 +37,6 @@ export async function registrar(req: Request, res: Response) {
   } else {
     res
       .status(201)
-      .json({ token: gerarToken(resul.id, nome, dataNascimento, email)});
+      .json({ token: gerarToken(), usuario: {nome, dataNascimento, email, cpf, senha}});
   }
 }

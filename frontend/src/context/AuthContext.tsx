@@ -1,6 +1,7 @@
 import { createContext, use, useContext, useState, type ReactNode } from "react";
 import { type Username, type BirthDate, type Email, type Cpf, type Password, createBirthYear } from "@/src/types/User";
 
+
 // Erros relativos a criação de váriaves de usuário
 export const RegisterError = {
   EmailExists: "EMAIL_EXISTS",
@@ -23,14 +24,15 @@ export type LoginError =
 
 
 type AuthContextType = {
-  auth: boolean;
+  authToken: string;
   user: Usuario | null;
-  register: (username : Username, 
-    birthDate : BirthDate,
+  register: (
+    nome: Username, 
+    dataNascimento: BirthDate,
     email: Email,
     cpf: Cpf,
-    pass: Password
-  ) => RegisterError | null
+    senha: Password
+  ) => Promise<RegisterError | null>
   login : (password: Password, 
     email?: Email, 
     cpf?: Cpf
@@ -62,26 +64,39 @@ export function AuthProvider({
 }: {
   children: ReactNode
 }) {
-  const [auth, setAuth] = useState(false);
+  const [authToken, setAuthToken] = useState('');
   const [user, setUser] = useState<Usuario | null>(null);
-
   // Sempre retorna true quando ocorre sem falhas
-  const register = (username : Username, birthDate : BirthDate, 
-    email : Email, cpf : Cpf, password : Password
+  const register = async (nome : Username, dataNascimento : BirthDate, 
+    email : Email, cpf : Cpf, senha : Password
   ) => {
-    // Deixando apenas um usuário existente como exemplo
-    // Em teoria seria feito um fetch enviando tods estes dados e seria
-    // retornado uma token de login
+    const url = "http://localhost:8080/api/auth/registrar";
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, dataNascimento, email, cpf, senha })
+      });
 
-    if (email === 'asd@g.c')
-      return RegisterError.EmailExists;
+      switch (res.status) {
+        case 201: {
+          const data = await res.json();
+          setAuthToken(data.token);
+          setUser(data.usuario);
+          return null;
+        }
+        case 409: {
+          const err = await res.json();
+          return err.err;
+        }
+      }
 
-    if (cpf === '94124923082')
-      return RegisterError.CpfExists;
-
-    // O OtherError seria para erros de conexão e etc
-    setUser(USUARIO_FICTICIO);
-    setAuth(true);
+      if (res.status !== 201 && res.status !== 409) {
+        return RegisterError.OtherError;
+      }
+    } catch (err) {
+      console.error(err);
+    }
     return null;
   } 
 
@@ -100,7 +115,7 @@ export function AuthProvider({
         return LoginError.WrongPassword;
 
       setUser(USUARIO_FICTICIO);
-      setAuth(true);
+      setAuthToken("a");
       return null;
     } else {
       // colocando um caminho como exemplo de cpf inexistente
@@ -112,18 +127,18 @@ export function AuthProvider({
         return LoginError.WrongPassword;
 
       setUser(USUARIO_FICTICIO);
-      setAuth(true);
+      setAuthToken('');
       return null;
     }
   }
 
   const logout = () => {
     setUser(null);
-    setAuth(false);
+    setAuthToken('');
   }
 
   return (
-    <AuthContext.Provider value={{auth, user, register, login, logout}}>
+    <AuthContext.Provider value={{authToken, user, register, login, logout}}>
       {children}
     </AuthContext.Provider>
   )

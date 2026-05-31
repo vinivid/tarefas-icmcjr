@@ -1,32 +1,10 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-import { findUsuarioByEmail } from "./models/usuario.model.js";
-import { authRouter } from "./routes/auth.route.js";
+import { app } from "./app.js"
 
 dotenv.config();
 const PORT = process.env.PORT || 8080;
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-app.use("/api/auth", authRouter);
-
-app.get("/", (req, res) => {
-  res.send("🗣");
-});
-
-// Fazendo uma query simples
-app.get("/tst", async (req, res) => {
-  const usr = await findUsuarioByEmail("a@g.c");
-  res
-    .status(200)
-    .json(usr)
-})
-
 
 async function main() {
   try {

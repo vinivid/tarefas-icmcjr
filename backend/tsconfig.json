@@ -3,7 +3,7 @@
     "strict": true,
     "skipLibCheck": true,
 
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
 
     "module": "nodenext",

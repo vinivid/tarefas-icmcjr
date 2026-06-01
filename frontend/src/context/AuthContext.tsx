@@ -86,7 +86,7 @@ export function AuthProvider({
   const registrar = async (nome : Username, dataNascimento : BirthDate, 
     email : Email, cpf : Cpf, senha : Password
   ) => {
-    const url = "http://localhost:8080/api/auth/registrar";
+    const url = "http://localhost:8080/api/v1/auth/registrar";
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -119,7 +119,7 @@ export function AuthProvider({
       throw new Error("Um email ou cpf devem ser passados para o login");
 
     if (email !== undefined) {
-      const url = "http://localhost:8080/api/auth/login/email";
+      const url = "http://localhost:8080/api/v1/auth/login/email";
 
       try {
         const res = await fetch(url, {
@@ -146,7 +146,7 @@ export function AuthProvider({
       }
 
     } else {
-      const url = "http://localhost:8080/api/auth/login/cpf";
+      const url = "http://localhost:8080/api/v1/auth/login/cpf";
       
       try {
         const res = await fetch(url, {

@@ -54,3 +54,11 @@ docker compose run backend npm run seed
 Este comando deve ser executado após o backend estar rodando com o docker compose up.
 
 Uma vez seedado não é necessário seedar outras vezes.
+
+## Testando o projeto
+
+Para testar o projeto execute:
+
+```
+npm run test
+```

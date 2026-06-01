@@ -9,7 +9,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "esnext",
-    "types": ["jest"],
+    "types": ["vitest/globals"],
     "paths": {
       "@/*": [
         "./*"

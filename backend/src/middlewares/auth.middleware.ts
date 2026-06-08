@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken";
 
-const secret = process.env.JWT_TOKEN!;
 
 /**
  * Middleware que verifica se o header de autenticação 
@@ -13,6 +12,8 @@ const secret = process.env.JWT_TOKEN!;
  * @param next próximo middleware
  */
 export async function authToken(req : Request, res : Response, next : NextFunction) {
+  const secret = process.env.JWT_SECRET!;
+
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
 

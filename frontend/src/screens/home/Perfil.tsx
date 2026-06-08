@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useEffect} from "react"
 import { View, Text, ScrollView, Modal, Pressable, StyleSheet, KeyboardAvoidingView, Platform, TextInput, Keyboard, TouchableWithoutFeedback } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 
@@ -18,15 +18,15 @@ import useCpfStr from "@/src/hooks/auth/useCpfStr";
 import useDateStr from "@/src/hooks/auth/useDateStr";
 
 export default function Perfil() {
-  const { usuario, logout } = useAuth()
+  const { usuario, logout, atualizarPerfil, excluirConta} = useAuth();
 
   const [editando, setEditando] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
 
-  const { usernameStr, username, setUsernameStr } = useUsernameStr(usuario?.nome ?? "");
-  const { dateStr, date, setDateStr} = useDateStr(usuario?.dataNascimento.toLocaleDateString('en-CH').replace(/-/, '/') ?? "");
-  const { emailStr, email, setEmailStr } = useEmailStr(usuario?.email ?? "");
-  const { cpfStr, cpf, setCpfStr } = useCpfStr(usuario?.cpf ?? "");
+  const { usernameStr, username, setUsernameStr } = useUsernameStr("");
+  const { dateStr, date, setDateStr } = useDateStr("");
+  const { emailStr, email, setEmailStr } = useEmailStr("");
+  const { cpfStr, cpf, setCpfStr } = useCpfStr("");
   const { passwordStr, password, setPasswordStr } = usePasswordStr('');
   const [ passwordRepeat, setPasswordRepeat ] = useState('');
   const [ passwordDiff, setPasswordDiff ] = useState(false);
@@ -34,11 +34,20 @@ export default function Perfil() {
   const [erroCampos, setErroCampos] = useState(false);
   const [erroSenha, setErroSenha] = useState(false);
 
-  const [textoExcluir, setTextoExcluir] = useState("")
+  const [textoExcluir, setTextoExcluir] = useState("");
+
+  useEffect(() => {
+  if (!usuario) return;
+  setUsernameStr(usuario.nome);
+  const data = new Date(usuario.dataNascimento); 
+  setDateStr(data.toLocaleDateString('en-CH').replace(/\./g, '/'));
+  setEmailStr(usuario.email);
+  setCpfStr(usuario.cpf);
+}, [usuario]);
 
   function handleCancelarEdicao() {
     setUsernameStr(usuario?.nome ?? "");
-    setDateStr(usuario?.dataNascimento.toLocaleDateString('en-CH').replace(/\./, '/') ?? "");
+    setDateStr(new Date(usuario?.dataNascimento ?? "").toLocaleDateString('en-CH').replace(/\./g, '/'));
     setEmailStr(usuario?.email ?? "");
     setCpfStr(usuario?.cpf ?? "");
     setPasswordStr("");
@@ -48,25 +57,39 @@ export default function Perfil() {
     setErroSenha(false);
   }
 
-  function handleConfirmarAlteracoes() {
-  if (!username.ok || !date.ok || !email.ok || !cpf.ok) {
-    setErroCampos(true);
-    return;
+  async function handleConfirmarAlteracoes() {
+    if (!username.ok || !date.ok || !email.ok || !cpf.ok) {
+      setErroCampos(true);
+      return;
+    }
+    setErroCampos(false);
+
+    if (!password.ok || passwordDiff || passwordRepeat === '') {
+      setErroSenha(true);
+      return;
+    }
+    setErroSenha(false);
+
+    const err = await atualizarPerfil({
+      nome: username.value,
+      dataNascimento: date.value,
+      email: email.value,
+      cpf: cpf.value,
+      senha: password.value
+    });
+
+    if (err === "EMAIL_EXISTS" || err === "CPF_EXISTS") {
+      setErroCampos(true);
+      return;
+    }
+    setPasswordStr("");
+    setPasswordRepeat("");
+    setPasswordDiff(false);
+    setEditando(false);
   }
-  setErroCampos(false);
-
-  if (!password.ok || passwordDiff || passwordRepeat === '') {
-    setErroSenha(true);
-    return;
-  }
-  setErroSenha(false);
-
-  setEditando(false);
-}
-
-  function handleExcluirConta() {
-    if (textoExcluir !== "Excluir") return
-    logout();
+  async function handleExcluirConta() {
+    if (textoExcluir !== "Excluir") return;
+    await excluirConta();
     setModalVisivel(false);
   }
 

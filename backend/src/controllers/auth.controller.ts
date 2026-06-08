@@ -2,12 +2,11 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { compare } from "bcrypt";
 
-import { createUsuario, findUsuarioByCpf, findUsuarioByEmail, type UsuarioDoc } from "../models/usuario.model.js";
-
-const secret = process.env.JWT_SECRET!;
+import { createUsuario, findUsuarioByCpf, findUsuarioByEmail, updateUsuario, UpdateUsuarioErr, deleteUsuario, type UsuarioDoc } from "../models/usuario.model.js";
 
 // Gera uma token do jwt
 function gerarToken(usr_id: string) {
+  const secret = process.env.JWT_SECRET!;
   return jwt.sign(
     { usr_id },
     secret
@@ -116,5 +115,41 @@ export async function registrar(req: Request, res: Response) {
     res
       .status(201)
       .json({ token: gerarToken(result.id), usuario: {id: result.id, nome, dataNascimento, email, cpf, senha}});
+  }
+}
+
+export async function atualizarPerfil(req: Request, res: Response) {
+  const id = req.params.id as string; // 👈 corrige o erro de tipo
+  const { nome, dataNascimento, email, cpf, senha } = req.body;
+
+  const result = await updateUsuario(id, { nome, dataNascimento, email, cpf, senha });
+
+  if (typeof result === "string") {
+    if (result === UpdateUsuarioErr.UsuarioNotFound) {
+      res.status(404).json({ err: result });
+    } else {
+      res.status(409).json({ err: result });
+    }
+  } else {
+    res.status(200).json({
+      usuario: {
+        id: result.id,
+        nome: result.nome,
+        dataNascimento: result.dataNascimento,
+        email: result.email,
+        cpf: result.cpf,
+      }
+    });
+  }
+}
+
+export async function excluirConta(req: Request, res: Response) {
+  const id = req.params.id as string;
+  const deletou = await deleteUsuario(id);
+
+  if (!deletou) {
+    res.status(404).json({ err: "USUARIO_NOT_FOUND" });
+  } else {
+    res.sendStatus(200);
   }
 }

@@ -39,7 +39,9 @@ type AuthContextType = {
     email?: Email, 
     cpf?: Cpf
   ) => Promise<LoginError | null>;
-  logout : () => void
+  logout : () => void;
+  atualizarPerfil: (dados: Partial<Omit<Usuario, "id">>) => Promise<null | "EMAIL_EXISTS" | "CPF_EXISTS" | "OTHER_ERROR">;
+  excluirConta: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -182,8 +184,67 @@ export function AuthProvider({
     removerUsr();
   }
 
+  const atualizarPerfil = async (dados: Partial<Omit<Usuario, "id">>) => {
+    if (!usuario || !authToken) return "OTHER_ERROR";
+
+    const url = `http://localhost:8080/api/v1/auth/usuario/${usuario.id}`;
+    try {
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify(dados)
+      });
+
+      switch (res.status) {
+        case 200: {
+          const data = await res.json();
+          const usuarioAtualizado = {
+            ...data.usuario,
+            dataNascimento: new Date(data.usuario.dataNascimento),
+            senha: dados.senha ?? usuario.senha 
+          };
+          setUsuario(usuarioAtualizado);
+          await salvarUsr(usuarioAtualizado);
+          return null;
+        }
+        case 409: {
+          const err = await res.json();
+          return err.err;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    return "OTHER_ERROR";
+  }
+
+  const excluirConta = async () => {
+    if (!usuario || !authToken) return false;
+
+    const url = `http://localhost:8080/api/v1/auth/usuario/${usuario.id}`;
+    try {
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${authToken}` }
+      });
+
+      if (res.status === 200) {
+        logout();
+        return true;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    return false;
+  }
+
   return (
-    <AuthContext.Provider value={{authToken, usuario, registrar, login, logout}}>
+    <AuthContext.Provider value={{authToken, usuario, registrar, login, logout, atualizarPerfil, excluirConta}}>
       {children}
     </AuthContext.Provider>
   )

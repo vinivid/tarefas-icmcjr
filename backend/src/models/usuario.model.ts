@@ -103,3 +103,59 @@ export async function createUsuario(
 
   return novo_usr;
 }
+
+// Erros relativos à atualização de usuário
+export const UpdateUsuarioErr = {
+  EmailExists: "EMAIL_EXISTS",
+  CpfExists: "CPF_EXISTS",
+  UsuarioNotFound: "USUARIO_NOT_FOUND"
+}
+
+export type UpdateUsuarioErr =
+  typeof UpdateUsuarioErr[keyof typeof UpdateUsuarioErr];
+
+/**
+ * Atualiza os dados de um usuário pelo id.
+ *
+ * @param id id do usuário a ser atualizado.
+ * @param dados campos a serem atualizados.
+ * @returns o documento atualizado ou um UpdateUsuarioErr.
+ */
+export async function updateUsuario(
+  id: string,
+  dados: Partial<Pick<UsuarioJson, "nome" | "dataNascimento" | "email" | "cpf" | "senha">>
+) {
+  const usuario = await Usuario.findById(id);
+  if (!usuario) return UpdateUsuarioErr.UsuarioNotFound;
+
+  if (dados.email && dados.email !== usuario.email) {
+    if (await Usuario.exists({ email: dados.email }))
+      return UpdateUsuarioErr.EmailExists;
+  }
+
+  if (dados.cpf && dados.cpf !== usuario.cpf) {
+    if (await Usuario.exists({ cpf: dados.cpf }))
+      return UpdateUsuarioErr.CpfExists;
+  }
+
+  if (dados.senha) {
+    const salt = await genSalt();
+    dados.senha = await hash(dados.senha, salt);
+  }
+
+  Object.assign(usuario, dados);
+  await usuario.save();
+
+  return usuario;
+}
+
+/**
+ * Deleta um usuário pelo id.
+ * 
+ * @param id id do usuário a ser deletado.
+ * @returns true se deletou, false se não encontrou.
+ */
+export async function deleteUsuario(id: string) {
+  const result = await Usuario.findByIdAndDelete(id);
+  return result !== null;
+}

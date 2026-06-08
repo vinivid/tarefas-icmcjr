@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView, Platform  } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Pressable } from "react-native";
 
 import { LoginError, useAuth } from "@/src/context/AuthContext";
 
@@ -9,6 +9,10 @@ import Botao from "@/src/components/Botao";
 import LineInput from "@/src/components/LineInput";
 import { createCpf, createEmail, createPassword } from "@/src/types/User";
 
+import { useNavigation } from "@react-navigation/native";
+import { type AuthScreenNavigationProp } from "@/src/navigation/AuthNavigator";
+
+
 const LoginType = {
   Email: "Email",
   Cpf: "Cpf"
@@ -16,6 +20,7 @@ const LoginType = {
 
 export default function Login() {
   const { login } = useAuth();
+  const navigation = useNavigation<AuthScreenNavigationProp>();
 
   const [ logVal, setLogVal ] = useState('');
   const [ passVal, setPassVal ] = useState('');
@@ -111,6 +116,11 @@ export default function Login() {
               secureTextEntry={true}
               placeholder="Senha"
             />
+
+            <Pressable onPress={() => navigation.navigate("EsqueciSenha")}>
+              <Text style={styles.esqueciSenha}>Esqueci minha senha</Text>
+            </Pressable>
+
           </View>
           <View 
             style={styles.legendContainer}
@@ -176,5 +186,12 @@ const styles = StyleSheet.create({
     marginTop: 75,
     rowGap: 44,
     marginHorizontal: '11%',
+  },
+  esqueciSenha: {
+    color: Colors.light.primary,
+    fontFamily: "RobotoMono_400Regular",
+    fontSize: 13,
+    alignSelf: "flex-end",
+    marginRight: 5
   }
 })

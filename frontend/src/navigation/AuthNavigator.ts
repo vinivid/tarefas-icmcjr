@@ -4,6 +4,8 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-na
 import Init from '@/src/screens/auth/Init';
 import Login from '@/src/screens/auth/Login';
 import Registrar from '@/src/screens/auth/Registrar';
+import EsqueciSenha from '@/src/screens/auth/EsqueciSenha';
+import RedefinirSenha from '@/src/screens/auth/RedefinirSenha';
 import { Colors } from '@/src/constants/theme';
 
 export const AuthNavigator = createNativeStackNavigator({
@@ -26,7 +28,19 @@ export const AuthNavigator = createNativeStackNavigator({
       }
     },
     Login: Login,
-    Registrar: Registrar
+    Registrar: Registrar,
+    EsqueciSenha: {
+      screen: EsqueciSenha,
+      options: {
+        title: "Esqueci minha senha"
+      }
+    },
+    RedefinirSenha: {
+      screen: RedefinirSenha,
+      options: {
+        title: "Redefinir senha"
+      }
+    }
   }
 })
 

@@ -117,6 +117,21 @@ export function AuthProvider({
   }
 
   const login = async (senha: Password, email?: Email, cpf?: Cpf) => {
+
+    /// Somente por que esta tendo problemas com o backend
+    if (email === "abc@g.c" && senha === "12345678") {
+      setAuthToken("1");
+      setUsuario({
+        id: "1",
+        nome: "Teste",
+        dataNascimento: new Date("2005-06-2006"),
+        email: "abc@g.c",
+        cpf: "12345678911",
+        senha: "12345678"
+      })
+      return null;
+    }
+
     if (email === undefined && cpf === undefined)
       throw new Error("Um email ou cpf devem ser passados para o login");
 

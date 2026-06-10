@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { View, StyleSheet, Text, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
-
+import { View, StyleSheet, Text, ScrollView, KeyboardAvoidingView, Platform, Image, useWindowDimensions} from "react-native";
 import { useAuth } from "@/src/context/AuthContext";
 
 import Botao from "@/src/components/Botao";
@@ -32,6 +31,10 @@ export default function Registrar() {
   const [ cpfRegistered, setCpfRegistered ] = useState(false);
   const [ otherError, setOtherError ] = useState(false);
 
+  const { width } = useWindowDimensions();
+  const showImage = width >= 768;
+  const imageSize = width < 1000 ? 360 : 520;
+
   return (
     <View style={{flex: 1, backgroundColor: Colors.light.background}}>
       <KeyboardAvoidingView
@@ -39,8 +42,25 @@ export default function Registrar() {
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollView,
+            showImage && styles.scrollViewDesktop,
+          ]}
         >
+
+          {showImage && (
+            <Image
+              source={require("@/src/assets/images/stock_init.png")}
+              resizeMode="contain"
+              style={{
+                width: imageSize,
+                height: imageSize,
+                alignSelf: "center",
+              }}
+            />
+          )}
+
+          <View style={styles.form}>
           <UserFieldInput
             label="Usuário"
             fieldStr={usernameStr}
@@ -182,7 +202,7 @@ export default function Registrar() {
               />
             )}
           </View>
-
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -190,27 +210,42 @@ export default function Registrar() {
 }
 
 const styles = StyleSheet.create({
-  legendText : {
+  legendText: {
     color: Colors.light.onSurfaceVariant,
     fontFamily: "RobotoMono_300Light",
     fontSize: 12,
-    marginLeft: 5
+    marginLeft: 5,
   },
-  legendContainer : {
-    rowGap: 10
+
+  legendContainer: {
+    rowGap: 10,
   },
-  legendTextError : {
+
+  legendTextError: {
     color: Colors.light.error,
     fontFamily: "RobotoMono_400Regular",
     fontSize: 12,
-    marginLeft: 5
+    marginLeft: 5,
   },
-  scrollView : {
-    flexDirection: 'column',
-    marginTop: 75,
-    rowGap: 44,
-    marginHorizontal: '11%',
+
+  scrollView: {
     flexGrow: 1,
-    paddingBottom: 200
-  }
-})
+    paddingTop: 75,
+    paddingHorizontal: 24,
+    paddingBottom: 120,
+    alignItems: "center",
+  },
+
+  scrollViewDesktop: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    gap: 60,
+  },
+
+  form: {
+    width: "100%",
+    maxWidth: 340,
+    rowGap: 44,
+  },
+});

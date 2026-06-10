@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Pressable } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Pressable, Image, useWindowDimensions} from "react-native";
 
 import { LoginError, useAuth } from "@/src/context/AuthContext";
-
 import { Colors } from "@/src/constants/theme";
 
 import Botao from "@/src/components/Botao";
@@ -12,186 +11,226 @@ import { createCpf, createEmail, createPassword } from "@/src/types/User";
 import { useNavigation } from "@react-navigation/native";
 import { type AuthScreenNavigationProp } from "@/src/navigation/AuthNavigator";
 
-
 const LoginType = {
   Email: "Email",
-  Cpf: "Cpf"
+  Cpf: "Cpf",
 };
 
 export default function Login() {
   const { login } = useAuth();
   const navigation = useNavigation<AuthScreenNavigationProp>();
+  const { width } = useWindowDimensions();
 
-  const [ logVal, setLogVal ] = useState('');
-  const [ passVal, setPassVal ] = useState('');
-  const [ errEmailCpf, setErrEmailCpf ] = useState(false);
-  const [ cpfNotFound, setCpfNotFound ] = useState(false);
-  const [ emailNotFound, setEmailNotFound ] = useState(false);
-  const [ wrongPassword, setWrongPassword ] = useState(false); 
-  const [ errPass, setErrPass ] = useState(false);
-  const [ otherError, setOtherError ] = useState(false);
-  const [ logType, setLogType ] = useState(LoginType.Email);
+  const showImage = width >= 768;
 
-  const loginError = (e : LoginError) => {
-    if (e === LoginError.CpfNotFound)
-      setCpfNotFound(true);
+  const imageSize = width < 1000 ? 360 : 520;
 
-    if (e === LoginError.EmailNotFound)
-      setEmailNotFound(true);
+  const [logVal, setLogVal] = useState("");
+  const [passVal, setPassVal] = useState("");
+  const [errEmailCpf, setErrEmailCpf] = useState(false);
+  const [cpfNotFound, setCpfNotFound] = useState(false);
+  const [emailNotFound, setEmailNotFound] = useState(false);
+  const [wrongPassword, setWrongPassword] = useState(false);
+  const [errPass, setErrPass] = useState(false);
+  const [otherError, setOtherError] = useState(false);
+  const [logType, setLogType] = useState(LoginType.Email);
 
-    if (e === LoginError.WrongPassword)
-      setWrongPassword(true)
-
-    if (e === LoginError.OtherError)
-      setOtherError(true);
-  }
+  const loginError = (e: LoginError) => {
+    if (e === LoginError.CpfNotFound) setCpfNotFound(true);
+    if (e === LoginError.EmailNotFound) setEmailNotFound(true);
+    if (e === LoginError.WrongPassword) setWrongPassword(true);
+    if (e === LoginError.OtherError) setOtherError(true);
+  };
 
   return (
-    <View style={{flex: 1, backgroundColor: Colors.light.background}}>
+    <View style={styles.screen}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={styles.keyboard}
       >
-        <View 
-          style={styles.loginView}
+        <View
+          style={[
+            styles.container,
+            showImage && styles.containerWithImage,
+          ]}
         >
-          <View 
-            style={styles.legendContainer}
-          >
-            {cpfNotFound && (
-              <Text 
-                style={styles.legendTextError}
-              >
-                Cpf não registrado
-              </Text>
-            )}
-            {emailNotFound && (
-              <Text 
-                style={styles.legendTextError}
-              >
-                Email não registrado
-              </Text>
-            )}
-            <LineInput
-              label="Email/cpf do usuário"
-              onChangeText={(s) => {
-                if (/^[\d.-]+$/.test(s)) 
-                  setLogType(LoginType.Cpf);
-                else
-                  setLogType(LoginType.Email);
-                setLogVal(s);
-                setErrEmailCpf(false);
-                setCpfNotFound(false);
-                setEmailNotFound(false);
+          {showImage && (
+            <Image
+              source={require("@/src/assets/images/stock_init.png")}
+              resizeMode="contain"
+              style={{
+                width: imageSize,
+                height: imageSize,
               }}
-              error={errEmailCpf}
-              errorValue="Email/Cpf inválido"
-              onClosePress={() => setLogVal('')}
-              value={logVal}
-              placeholder="Email/cpf "
             />
-          </View>
+          )}
 
-          <View 
-            style={styles.legendContainer}
-          >
-            {wrongPassword && (
-              <Text 
-                style={styles.legendTextError}
+          <View style={styles.form}>
+            {showImage && <Text style={styles.title}>Login</Text>}
+
+            <View style={styles.fieldGroup}>
+              {cpfNotFound && (
+                <Text style={styles.errorText}>CPF não registrado</Text>
+              )}
+
+              {emailNotFound && (
+                <Text style={styles.errorText}>Email não registrado</Text>
+              )}
+
+              <LineInput
+                label="Email/cpf do usuário"
+                value={logVal}
+                placeholder="Email/cpf"
+                error={errEmailCpf}
+                errorValue="Email/Cpf inválido"
+                onClosePress={() => setLogVal("")}
+                onChangeText={(s) => {
+                  setLogType(
+                    /^[\d.-]+$/.test(s)
+                      ? LoginType.Cpf
+                      : LoginType.Email
+                  );
+
+                  setLogVal(s);
+                  setErrEmailCpf(false);
+                  setCpfNotFound(false);
+                  setEmailNotFound(false);
+                }}
+              />
+            </View>
+
+            <View style={styles.fieldGroup}>
+              {wrongPassword && (
+                <Text style={styles.errorText}>Senha errada</Text>
+              )}
+
+              <LineInput
+                label="Senha"
+                value={passVal}
+                placeholder="Senha"
+                secureTextEntry
+                error={errPass}
+                errorValue="Senha inválida"
+                onClosePress={() => setPassVal("")}
+                onChangeText={(s) => {
+                  setPassVal(s);
+                  setErrPass(false);
+                  setWrongPassword(false);
+                }}
+              />
+
+              <Pressable
+                onPress={() => navigation.navigate("EsqueciSenha")}
               >
-                Senha errada
-              </Text>
-            )}
-            <LineInput
-              label="Senha"
-              onChangeText={(s) => {
-                setErrPass(false);
-                setPassVal(s);
-                setWrongPassword(false);
-              }}
-              error={errPass}
-              errorValue="Senha inválida"
-              onClosePress={() => setLogVal('')}
-              value={passVal}
-              secureTextEntry={true}
-              placeholder="Senha"
-            />
+                <Text style={styles.esqueciSenha}>
+                  Esqueci minha senha
+                </Text>
+              </Pressable>
+            </View>
 
-            <Pressable onPress={() => navigation.navigate("EsqueciSenha")}>
-              <Text style={styles.esqueciSenha}>Esqueci minha senha</Text>
-            </Pressable>
+            <View style={styles.fieldGroup}>
+              {otherError && (
+                <Text style={styles.errorText}>Ocorreu um erro</Text>
+              )}
 
-          </View>
-          <View 
-            style={styles.legendContainer}
-          >
-            {otherError && (
-              <Text 
-                style={styles.legendTextError}
-              >
-                Senha errada
-              </Text>
-            )}
-            <Botao 
-              conteudo="Logar"
-              onPress={ async () => {
-                const password = createPassword(passVal);
-                if (!password.ok) {
-                  setErrPass(true);
-                  return;
-                }
+              <Botao
+                conteudo="Entrar"
+                onPress={async () => {
+                  const password = createPassword(passVal);
 
-                if (logType === LoginType.Email) {
-                  const email = createEmail(logVal);
-                  if (email.ok) {
-                    const lRes = await login(password.value, email.value)
-                    if (lRes !== null)
-                      loginError(lRes);
-
-                  } else {
-                    setErrEmailCpf(true);
+                  if (!password.ok) {
+                    setErrPass(true);
+                    return;
                   }
-                } else {
-                  const cpf = createCpf(logVal);
-                  if (cpf.ok) {
-                    const lRes = await login(password.value, undefined, cpf.value)
-                    if (lRes !== null)
-                      loginError(lRes);
+
+                  if (logType === LoginType.Email) {
+                    const email = createEmail(logVal);
+
+                    if (!email.ok) {
+                      setErrEmailCpf(true);
+                      return;
+                    }
+
+                    const res = await login(password.value, email.value);
+
+                    if (res) loginError(res);
                   } else {
-                    setErrEmailCpf(true);
+                    const cpf = createCpf(logVal);
+
+                    if (!cpf.ok) {
+                      setErrEmailCpf(true);
+                      return;
+                    }
+
+                    const res = await login(
+                      password.value,
+                      undefined,
+                      cpf.value
+                    );
+
+                    if (res) loginError(res);
                   }
-                }
-              }}
-            />
+                }}
+              />
+            </View>
           </View>
         </View>
       </KeyboardAvoidingView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  legendContainer : {
-    rowGap: 10
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
   },
-  legendTextError : {
+
+  keyboard: {
+    flex: 1,
+  },
+
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+
+  containerWithImage: {
+    flexDirection: "row",
+    gap: 50,
+  },
+
+  form: {
+    width: "100%",
+    maxWidth: 340,
+    rowGap: 40,
+  },
+
+  title: {
+    fontSize: 40,
+    fontWeight: "bold",
+    color: Colors.light.primary,
+    alignSelf: "center",
+  },
+
+  fieldGroup: {
+    rowGap: 10,
+  },
+
+  errorText: {
     color: Colors.light.error,
     fontFamily: "RobotoMono_400Regular",
     fontSize: 12,
-    marginLeft: 5
+    marginLeft: 5,
   },
-  loginView : {
-    flex: 1,
-    flexDirection: 'column',
-    marginTop: 75,
-    rowGap: 44,
-    marginHorizontal: '11%',
-  },
+
   esqueciSenha: {
     color: Colors.light.primary,
     fontFamily: "RobotoMono_400Regular",
     fontSize: 13,
     alignSelf: "flex-end",
-    marginRight: 5
-  }
-})
+    marginRight: 5,
+  },
+});

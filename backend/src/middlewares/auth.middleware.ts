@@ -22,6 +22,11 @@ export async function authToken(req : Request, res : Response, next : NextFuncti
   } else {
     jwt.verify(token, secret, (err, decoded) => {
         if (err) return res.sendStatus(401);
+
+        const payload = decoded as { usr_id: string };
+
+        (req as any).userId = payload.usr_id;
+        
         next();
     })
   }

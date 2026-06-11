@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Image, useWindo
 import { useNavigation } from "@react-navigation/native";
 
 import { Colors } from "@/src/constants/theme";
+import { API_URL } from "@/src/constants/api";
 import Botao from "@/src/components/Botao";
 import LineInput from "@/src/components/LineInput";
 import { createEmail, createCpf } from "@/src/types/User";
@@ -58,7 +59,7 @@ export default function EsqueciSenha() {
 
     try {
       const res = await fetch(
-        "http://localhost:8080/api/v1/auth/esqueci-senha",
+        `${API_URL}/auth/esqueci-senha`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

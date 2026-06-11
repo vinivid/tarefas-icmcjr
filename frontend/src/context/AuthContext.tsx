@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { type Username, type BirthDate, type Email, type Cpf, type Password} from "@/src/types/User";
 import { useStorageState } from "../hooks/secureStore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from "@/src/constants/api";
 
 // Erros relativos a criação de váriaves de usuário
 export const RegisterError = {
@@ -88,7 +89,7 @@ export function AuthProvider({
   const registrar = async (nome : Username, dataNascimento : BirthDate, 
     email : Email, cpf : Cpf, senha : Password
   ) => {
-    const url = "http://localhost:8080/api/v1/auth/registrar";
+    const url = `${API_URL}/auth/registrar`;
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -117,26 +118,11 @@ export function AuthProvider({
   }
 
   const login = async (senha: Password, email?: Email, cpf?: Cpf) => {
-
-    /// Somente por que esta tendo problemas com o backend
-    if (email === "abc@g.c" && senha === "12345678") {
-      setAuthToken("1");
-      setUsuario({
-        id: "1",
-        nome: "Teste",
-        dataNascimento: new Date("2005-06-2006"),
-        email: "abc@g.c",
-        cpf: "12345678911",
-        senha: "12345678"
-      })
-      return null;
-    }
-
     if (email === undefined && cpf === undefined)
       throw new Error("Um email ou cpf devem ser passados para o login");
 
     if (email !== undefined) {
-      const url = "http://localhost:8080/api/v1/auth/login/email";
+      const url = `${API_URL}/auth/login/email`;
 
       try {
         const res = await fetch(url, {
@@ -163,7 +149,7 @@ export function AuthProvider({
       }
 
     } else {
-      const url = "http://localhost:8080/api/v1/auth/login/cpf";
+      const url = `${API_URL}/auth/login/cpf`;
       
       try {
         const res = await fetch(url, {
@@ -202,7 +188,7 @@ export function AuthProvider({
   const atualizarPerfil = async (dados: Partial<Omit<Usuario, "id">>) => {
     if (!usuario || !authToken) return "OTHER_ERROR";
 
-    const url = `http://localhost:8080/api/v1/auth/usuario/${usuario.id}`;
+    const url = `${API_URL}/auth/usuario/${usuario.id}`;
     try {
       const res = await fetch(url, {
         method: "PUT",
@@ -240,7 +226,7 @@ export function AuthProvider({
   const excluirConta = async () => {
     if (!usuario || !authToken) return false;
 
-    const url = `http://localhost:8080/api/v1/auth/usuario/${usuario.id}`;
+    const url = `${API_URL}/auth/usuario/${usuario.id}`;
     try {
       const res = await fetch(url, {
         method: "DELETE",

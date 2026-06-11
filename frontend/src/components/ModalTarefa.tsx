@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
+import { Modal, View, Text, StyleSheet, Pressable, TextInput, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors } from '../constants/theme';
@@ -8,7 +8,7 @@ import Botao from './Botao';
 type ModalTarefaProps = {
   visivel: boolean;
   fecharModal: () => void;
-  onSalvar: (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => void;
+  onSalvar: (novaTarefa: { titulo: string; descricao: string; data: string; hora: string }) => Promise<boolean>;
   desktop?: boolean;
   tarefaParaEditar?: { 
     titulo: string;
@@ -52,14 +52,56 @@ export default function ModalTarefa({ visivel, fecharModal, onSalvar, desktop, t
     }
   };
 
-  const handleSalvar = () => {
-    if (!titulo.trim() || !descricao.trim() || !data.trim() || !hora.trim()) {
+  const aoDigitarData = (valor: string) => {
+    const numeros = valor.replace(/\D/g, '').slice(0, 8);
+    const partes = [
+      numeros.slice(0, 2),
+      numeros.slice(2, 4),
+      numeros.slice(4, 8)
+    ].filter(Boolean);
+
+    setData(partes.join('/'));
+  };
+
+  const aoDigitarHora = (valor: string) => {
+    const numeros = valor.replace(/\D/g, '').slice(0, 4);
+    const partes = [
+      numeros.slice(0, 2),
+      numeros.slice(2, 4)
+    ].filter(Boolean);
+
+    setHora(partes.join(':'));
+  };
+
+  const obterPrazo = () => {
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data) || !/^\d{2}:\d{2}$/.test(hora)) {
+      return null;
+    }
+
+    const [dia, mes, ano] = data.split('/').map(Number);
+    const [horas, minutos] = hora.split(':').map(Number);
+    const prazo = new Date(ano, mes - 1, dia, horas, minutos);
+
+    const dataValida =
+      prazo.getFullYear() === ano &&
+      prazo.getMonth() === mes - 1 &&
+      prazo.getDate() === dia;
+    const horaValida = horas <= 23 && minutos <= 59;
+
+    return dataValida && horaValida ? prazo : null;
+  };
+
+  const prazo = obterPrazo();
+  const prazoInvalido = prazo === null || prazo.getTime() <= Date.now();
+
+  const handleSalvar = async () => {
+    if (!titulo.trim() || !descricao.trim() || prazoInvalido) {
       setMostrarErros(true);
       return; 
     }
 
-    onSalvar({ titulo, descricao, data, hora });
-    fecharModal();
+    const salvou = await onSalvar({ titulo, descricao, data, hora });
+    if (salvou) fecharModal();
   };
 
   return (
@@ -124,46 +166,61 @@ export default function ModalTarefa({ visivel, fecharModal, onSalvar, desktop, t
           <Text style={styles.textoPrazo}>Prazo</Text>
 
           <View style={styles.secaoData}>
-            <View style={[styles.caixaInput, mostrarErros && !data.trim() && styles.caixaInputErro]}>
-              <Text style={[styles.labelInput, mostrarErros && !data.trim() && styles.labelInputErro]}>
+            <View style={[styles.caixaInput, mostrarErros && prazoInvalido && styles.caixaInputErro]}>
+              <Text style={[styles.labelInput, mostrarErros && prazoInvalido && styles.labelInputErro]}>
                 Data
               </Text>
 
-              {mostrarErros && !data.trim() && <Text style={styles.textoErro}>*Obrigatório</Text>}
+              {mostrarErros && prazoInvalido && (
+                <Text style={styles.textoErro}>*Prazo deve estar no futuro</Text>
+              )}
               
-              <Text style={styles.textInputArea}>
-                {data || 'DD/MM/YYYY'}
-              </Text>
+              <TextInput
+                style={styles.textInputArea}
+                value={data}
+                onChangeText={aoDigitarData}
+                placeholder="DD/MM/AAAA"
+                placeholderTextColor="#A0A0A0"
+                keyboardType="numeric"
+                maxLength={10}
+              />
               
-              <Pressable style={styles.botaoCalendario} onPress={() => setShowDatePicker(true)}>
-                <MaterialIcons name="calendar-today" size={22} color={Colors.light.primary} />
-              </Pressable>
+              {Platform.OS !== 'web' && (
+                <Pressable style={styles.botaoCalendario} onPress={() => setShowDatePicker(true)}>
+                  <MaterialIcons name="calendar-today" size={22} color={Colors.light.primary} />
+                </Pressable>
+              )}
             </View>
-            <Text style={styles.formatoData}>MM/DD/YYYY</Text>
+            <Text style={styles.formatoData}>DD/MM/AAAA</Text>
           </View>
 
-          {showDatePicker && (
-            <DateTimePicker
-              value={new Date()}
-              mode="date"
-              display="default"
-              onChange={aoEscolherData}
-            />
-          )}
+          {showDatePicker && Platform.OS !== 'web' && (
+              <DateTimePicker
+                value={new Date()}
+                mode="date"
+                display="default"
+                minimumDate={new Date()}
+                onChange={aoEscolherData}
+              />
+            )}
 
-          <View style={[styles.caixaInput, mostrarErros && !hora.trim() && styles.caixaInputErro]}>
-            <Text style={[styles.labelInput, mostrarErros && !hora.trim() && styles.labelInputErro]}>
+          <View style={[styles.caixaInput, mostrarErros && prazoInvalido && styles.caixaInputErro]}>
+            <Text style={[styles.labelInput, mostrarErros && prazoInvalido && styles.labelInputErro]}>
               Hora
             </Text>
 
-            {mostrarErros && !hora.trim() && <Text style={styles.textoErro}>*Obrigatório</Text>}
+            {mostrarErros && prazoInvalido && (
+              <Text style={styles.textoErro}>*Use HH:MM</Text>
+            )}
 
             <TextInput
               style={styles.textInputArea}
               value={hora}
-              onChangeText={setHora}
-              placeholder="Horário de entrega"
+              onChangeText={aoDigitarHora}
+              placeholder="HH:MM"
               placeholderTextColor="#A0A0A0"
+              keyboardType="numeric"
+              maxLength={5}
             />
             {hora.length > 0 && (
               <Pressable onPress={() => setHora('')} style={styles.botaoLimpar}>

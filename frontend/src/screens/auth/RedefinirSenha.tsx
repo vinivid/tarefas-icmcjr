@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, KeyboardAvoidingView, Platform } from "react-na
 import { useNavigation } from "@react-navigation/native";
 
 import { Colors } from "@/src/constants/theme";
+import { API_URL } from "@/src/constants/api";
 import Botao from "@/src/components/Botao";
 import LineInput from "@/src/components/LineInput";
 import { createPassword } from "@/src/types/User";
@@ -47,7 +48,7 @@ export default function RedefinirSenha() {
     setCarregando(true);
 
     try {
-      const res = await fetch("http://localhost:8080/api/v1/auth/redefinir-senha", {
+      const res = await fetch(`${API_URL}/auth/redefinir-senha`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, novaSenha: senha.value })

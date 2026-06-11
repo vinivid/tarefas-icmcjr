@@ -58,7 +58,7 @@ export async function createTarefa(
  * @returns Uma lista de todas as tarefas do usuário em questão (?)
  */
 export async function findTarefasByUsuario(usuarioId: string) {
-    return await Tarefa.find({ usuarioId });
+    return await Tarefa.find({ usuarioId }).sort({ prazo: 1 });
 }
 
 /**
@@ -66,23 +66,24 @@ export async function findTarefasByUsuario(usuarioId: string) {
  */
 export async function updateTarefa(
     id: string,
+    usuarioId: string,
     dados: Partial<{
         titulo: string,
         desc: string,
         prazo: Date,
-        finished: Boolean
+        finished: boolean
     }>
 ) {
-    return await Tarefa.findByIdAndUpdate(
-        id,
+    return await Tarefa.findOneAndUpdate(
+        { _id: id, usuarioId },
         dados,
-        { new: true }
+        { returnDocument: "after", runValidators: true }
     );
 }
 
 /**
  * @brief Exclui uma tarefa, encontrada por seu id
  */
-export async function deleteTarefa(id: string) {
-    return await Tarefa.findByIdAndDelete(id);
+export async function deleteTarefa(id: string, usuarioId: string) {
+    return await Tarefa.findOneAndDelete({ _id: id, usuarioId });
 }

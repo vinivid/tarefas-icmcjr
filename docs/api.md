@@ -1,110 +1,351 @@
-# Versão 1
+# API
+
+## Versão
+
+v1
 
 ## Autenticação
 
-Para as rotas cuja a autenticação é necessária para acessa-las utiliza-se de bearer tokens. As tokens são JWT.
+As rotas protegidas utilizam JWT.
+
+O token deve ser enviado no cabeçalho da requisição:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
 
 # Endpoints
 
-### POST /api/v1/auth/registrar
+## POST /api/v1/auth/registrar
 
-**Descrição**: Cria um novo usuário no sistema se não houver conflitos com os dados de registro e retorna uma token de autenticação.
+Cria um novo usuário.
 
-**Request Body**:
+### Request Body
 
 ```json
 {
-  "nome": "string",
-  "dataNascimento": "string",
-  "email": "string",
-  "cpf": "string",
-  "senha": "string"
+  "nome": "João Silva",
+  "dataNascimento": "2007-01-12",
+  "email": "joao@email.com",
+  "cpf": "12345678900",
+  "senha": "senha123"
 }
 ```
 
-**Response 201**:
+### Response 201
+
 ```json
 {
-  "token": "string",
+  "token": "<jwt>",
   "usuario": {
-    "nome": "string",
-    "dataNascimento": "string",
-    "email": "string",
-    "cpf": "string",
-    "senha": "string"
+    "id": "6848e7e95f5e0e8a64d2e1f1",
+    "nome": "João Silva",
+    "dataNascimento": "2007-01-12",
+    "email": "joao@email.com",
+    "cpf": "12345678900",
+    "senha": "senha123"
   }
 }
 ```
 
-**Response 409**:
+### Possíveis erros
+
+* 409 → `EMAIL_EXISTS`
+* 409 → `CPF_EXISTS`
+
+---
+
+## POST /api/v1/auth/login/email
+
+Realiza login por e-mail.
+
+### Request Body
+
 ```json
 {
-  "err": "string"
+  "email": "joao@email.com",
+  "senha": "senha123"
 }
 ```
 
-### POST /api/v1/auth/login/email
-
-**Descrição**: Faz o login do usuário com base no email e senha. Caso estejam cadastrados no sistema, envia uma token de autenticação.
-
-**Request Body**:
+### Response 200
 
 ```json
 {
-  "email": "string",
-  "senha": "string"
-}
-```
-
-**Response 200**:
-```json
-{
-  "token": "string",
+  "token": "<jwt>",
   "usuario": {
-    "nome": "string",
-    "dataNascimento": "string",
-    "email": "string",
-    "cpf": "string",
-    "senha": "string"
+    "id": "6848e7e95f5e0e8a64d2e1f1",
+    "nome": "João Silva",
+    "dataNascimento": "2007-01-12",
+    "email": "joao@email.com",
+    "cpf": "12345678900",
+    "senha": "senha123"
   }
 }
 ```
 
-**Response 404**:
-Mensagem padrão do código.
+### Possíveis erros
 
-**Response 401**:
-Mensagem padrão do código.
+* 401 → senha incorreta;
+* 404 → usuário não encontrado.
 
-### POST /api/v1/auth/login/cpf
+---
 
-**Descrição**: Faz o login do usuário com base no cpf e senha. Caso estejam cadastrados no sistema, envia uma token de autenticação.
+## POST /api/v1/auth/login/cpf
 
-**Request Body**:
+Realiza login por CPF.
+
+### Request Body
 
 ```json
 {
-  "cpf": "string",
-  "senha": "string"
+  "cpf": "12345678900",
+  "senha": "senha123"
 }
 ```
 
-**Response 200**:
+### Response 200
+
+Mesmo formato do login por e-mail.
+
+---
+
+## PUT /api/v1/auth/usuario/:id
+
+Atualiza os dados do usuário.
+
+### Request Body
+
 ```json
 {
-  "token": "string",
+  "nome": "João Silva",
+  "email": "novoemail@email.com"
+}
+```
+
+### Response 200
+
+```json
+{
   "usuario": {
-    "nome": "string",
-    "dataNascimento": "string",
-    "email": "string",
-    "cpf": "string",
-    "senha": "string"
+    "id": "6848e7e95f5e0e8a64d2e1f1",
+    "nome": "João Silva",
+    "dataNascimento": "2007-01-12T00:00:00.000Z",
+    "email": "novoemail@email.com",
+    "cpf": "12345678900"
   }
 }
 ```
 
-**Response 404**:
-Mensagem padrão do código.
+### Possíveis erros
 
-**Response 401**:
-Mensagem padrão do código.
+* 404 → `USUARIO_NOT_FOUND`
+* 409 → `EMAIL_EXISTS`
+* 409 → `CPF_EXISTS`
+
+---
+
+## DELETE /api/v1/auth/usuario/:id
+
+Remove o usuário.
+
+### Response
+
+Status 200.
+
+### Possíveis erros
+
+* 404 → `USUARIO_NOT_FOUND`
+
+---
+
+## POST /api/v1/auth/esqueci-senha
+
+Solicita a redefinição de senha.
+
+### Request Body
+
+```json
+{
+  "email": "joao@email.com"
+}
+```
+
+ou
+
+```json
+{
+  "cpf": "12345678900"
+}
+```
+
+### Response
+
+Status 200.
+
+### Possíveis erros
+
+* 400 → `EMAIL_OU_CPF_NECESSARIO`
+* 404 → usuário não encontrado
+
+---
+
+## POST /api/v1/auth/redefinir-senha
+
+Redefine a senha do usuário.
+
+### Request Body
+
+```json
+{
+  "token": "123456",
+  "novaSenha": "novasenha123"
+}
+```
+
+### Response
+
+Status 200.
+
+### Possíveis erros
+
+* 400 → `TOKEN_INVALIDO`
+
+---
+
+## GET /api/v1/tarefas
+
+Lista as tarefas do usuário autenticado.
+
+### Response 200
+
+```json
+[
+  {
+    "id": "6848e7e95f5e0e8a64d2e1f1",
+    "titulo": "Estudar",
+    "desc": "Resolver exercícios",
+    "prazo": "2026-06-20T00:00:00.000Z",
+    "finished": false
+  }
+]
+```
+
+---
+
+## POST /api/v1/tarefas
+
+Cria uma nova tarefa.
+
+### Request Body
+
+```json
+{
+  "titulo": "Estudar",
+  "desc": "Resolver exercícios",
+  "prazo": "2026-06-20"
+}
+```
+
+### Response 201
+
+```json
+{
+  "id": "6848e7e95f5e0e8a64d2e1f1",
+  "titulo": "Estudar",
+  "desc": "Resolver exercícios",
+  "prazo": "2026-06-20T00:00:00.000Z",
+  "finished": false
+}
+```
+
+### Possíveis erros
+
+* 400 → `DADOS_INVALIDOS`
+
+---
+
+## PUT /api/v1/tarefas/:id
+
+Atualiza uma tarefa.
+
+### Request Body
+
+```json
+{
+  "finished": true
+}
+```
+
+### Response 200
+
+Retorna a tarefa atualizada.
+
+### Possíveis erros
+
+* 400 → `DADOS_INVALIDOS`
+* 404 → `TAREFA_NOT_FOUND`
+
+---
+
+## DELETE /api/v1/tarefas/:id
+
+Remove uma tarefa.
+
+### Response
+
+Status 204.
+
+### Possíveis erros
+
+* 404 → `TAREFA_NOT_FOUND`
+
+---
+
+# Modelos de Dados
+
+## User
+
+* id
+* nome
+* dataNascimento
+* email
+* cpf
+* senha
+
+## Tarefa
+
+* id
+* usuarioId
+* titulo
+* desc
+* prazo
+* finished
+
+## ResetToken
+
+* usuarioId
+* token
+* expiracao
+
+---
+
+# Códigos de Erro
+
+```json
+{
+  "err": "CODIGO_DO_ERRO"
+}
+```
+
+Principais códigos:
+
+* EMAIL_EXISTS
+* CPF_EXISTS
+* USUARIO_NOT_FOUND
+* TOKEN_INVALIDO
+* EMAIL_OU_CPF_NECESSARIO
+* TAREFA_NOT_FOUND
+* DADOS_INVALIDOS

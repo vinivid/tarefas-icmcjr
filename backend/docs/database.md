@@ -1,42 +1,86 @@
-## Esquema de Usuário
+# database.md
 
-### Esquema
+# Banco de Dados
 
-```json
-nome: {
-  type: String,
-  required: true
-},
-dataNascimento: {
-  type: Date,
-  required: true,
-},
-email: {
-  type: String,
-  unique: true,
-  required: true
-},
-cpf: {
-  type: String,
-  unique: true,
-  required: true
-},
-senha: {
-  type: String,
-  required: true 
-}
-```
+A aplicação utiliza MongoDB para armazenamento dos dados.
 
-Neste equema temos que email e cpf são indices dos documentos.
+---
 
-### Documento de exemplo
+# Coleção User
+
+## Campos
+
+* nome (String)
+* dataNascimento (Date)
+* email (String, único)
+* cpf (String, único)
+* senha (String)
+
+## Índices
+
+* email
+* cpf
+
+## Documento de exemplo
 
 ```json
 {
-  "nome": "A",
-  "dataNascimento": ISODate("2007-01-12T00:00:00.000Z"),
-  "email": "a@g.c",
-  "cpf": "28069389028",
-  "senha": "$2b$10$/TjXarMgC54CWEKK5ESoGe7wuLY29uP17K6SihXp6qCzootVz0ELO",
+  "nome": "João Silva",
+  "dataNascimento": "2007-01-12T00:00:00.000Z",
+  "email": "joao@email.com",
+  "cpf": "12345678900",
+  "senha": "$2b$10$..."
+}
+```
+
+---
+
+# Coleção Tarefa
+
+## Campos
+
+* usuarioId (ObjectId)
+* titulo (String)
+* desc (String)
+* prazo (Date)
+* finished (Boolean)
+
+## Relação
+
+Cada tarefa pertence a um usuário através do campo `usuarioId`.
+
+## Documento de exemplo
+
+```json
+{
+  "usuarioId": "6848e7e95f5e0e8a64d2e1f1",
+  "titulo": "Estudar",
+  "desc": "Resolver exercícios",
+  "prazo": "2026-06-20T00:00:00.000Z",
+  "finished": false
+}
+```
+
+---
+
+# Coleção ResetToken
+
+## Campos
+
+* usuarioId (ObjectId)
+* token (String)
+* expiracao (Date)
+
+## Relação
+
+Cada token de redefinição pertence a um usuário.
+
+## Documento de exemplo
+
+```json
+{
+  "usuarioId": "6848e7e95f5e0e8a64d2e1f1",
+  "token": "123456",
+  "expiracao": "2026-06-20T15:00:00.000Z"
 }
 ```

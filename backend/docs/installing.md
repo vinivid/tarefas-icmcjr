@@ -6,8 +6,10 @@ Se você não estiver nela os comandos não funcionarão.
 É necessário ter um .env padronizado. Para isso é suficiente que você execute o comando:
 
 ```
-cp .env.example .env
+cp .env.example.no-dokcer .env
 ```
+
+**IMPORTANTE: SE VOCÊ ESTA UTILIZANDO O MONGO DB INSTALADO EM SUA PRÓPRIA MAQUINA É NECESSÁRIO QUE VOCÊ GARANTA QUE A PORTA E BANCO ESPECIFICADO JA ESTEJAM CONFIGURADOS**
 
 Além disso, antes de executar os próximos comandos, é necessário que você realize o setup do mongodb em sua maquina e que um url de acesso para ela seja o mesmo do contido no .env.
 

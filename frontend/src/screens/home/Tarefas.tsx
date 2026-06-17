@@ -46,8 +46,9 @@ function converterTarefa(tarefa: TarefaApi): Tarefa {
 
 export default function Tarefas() {
   const { width } = useWindowDimensions();
-  const { authToken } = useAuth();
+  const { authToken, usuario } = useAuth();
   const desktop = width >= 900;
+  const primeiroNome = usuario?.nome.trim().split(/\s+/)[0];
 
   const [filtro, setFiltro] = useState<TipoFiltro>("todos");
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -242,10 +243,10 @@ export default function Tarefas() {
   return (
     <View style={styles.body}>
       <View style={styles.container}>
-        {desktop && (
+        {desktop && primeiroNome && (
           <View>
             <Text style={styles.titulo}>
-              Olá, nome! 👋
+              Olá, {primeiroNome}! 👋
             </Text>
             <Text style={styles.subtitulo}>
               Vamos organizar seu dia!
